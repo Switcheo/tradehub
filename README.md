@@ -23,12 +23,12 @@ Switcheo TradeHub has only been tested on Ubuntu 18 at the moment, but it should
 ## Download a `switcheoctl` release
 
 The following package contains the Switcheo TradeHub client, as well as various tools
-that may be useful in running a validator or seed node: https://github.com/ConjurTech/switcheo-chain-containers/releases
+that may be useful in running a validator or seed node: https://github.com/ConjurTech/tradehub/releases
 
 You can use the following convenience install script:
 
 ```bash
-curl -L https://github.com/Switcheo/tradehub/releases/download/v0.0.1/install.tar.gz | tar -xz
+curl -L https://github.com/ConjurTech/tradehub/releases/download/v0.0.1/install.tar.gz | tar -xz
 ```
 
 ## Install `switcheoctl`
