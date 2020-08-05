@@ -12,14 +12,18 @@ Here are the minimum system requirements for a validator node:
 
 Switcheo TradeHub has only been tested on Ubuntu 18 at the moment, but it should work for all Linux flavors.
 
-Both a VPS or bare-metal machine will work, but [security considerations](#Validator-Security) should be taken into account. Additionally, running a full node requires Redis, Postgres and Nginx for storing / serving off-chain data and APIs. Therefore, nodes should be run as a dedicated instane to prevent configuration conflicts.
+Both a VPS or bare-metal machine will work, but [security considerations](#Validator-Security) should be taken into account.
+
+Additionally, running a full node requires Redis, Postgres and Nginx for storing / serving off-chain data and APIs, which will automatically be installed and configured in the following script.
+
+Therefore, nodes should be run as a dedicated instance to prevent configuration conflicts. For development or testing, a docker container can be used and will be made available later on.
 
 ## Download a `switcheoctl` release
 
 The following package contains the Switcheo TradeHub client, as well as various tools
-that may be useful in running a validator or seed node: https://github.com/Switcheo/tradehub/releases
+that may be useful in running a validator or seed node: [https://github.com/Switcheo/tradehub/releases](https://github.com/Switcheo/tradehub/releases)
 
-You can use the following convenience install script:
+You may use the following command to download and unzip the release:
 
 ```bash
 curl -L https://github.com/Switcheo/tradehub/releases/download/v0.0.1/install.tar.gz | tar -xz
@@ -40,7 +44,7 @@ cd install && sudo ./install.sh && cd - && rm -rf install
 1. Update the validator config file that can be found at `/etc/switcheoctl/config/config.json`:
    1. `sudo nano /etc/switcheoctl/config/config.json`
    2. Choose a unique monikier that identifies you well and replace `hikaru` with it.
-   3. You may update other details later using:
+   3. You may update other details later on using:
 
       ```bash
       switcheocli tx staking edit-validator
@@ -52,6 +56,8 @@ cd install && sudo ./install.sh && cd - && rm -rf install
       --from=val \
       --commission-rate="0.10"
       ```
+
+      The validator details are similar to that of Cosmos Hub and can be found [here](https://hub.cosmos.network/master/validators/validator-setup.html#edit-validator-description).
 
 2. Install with: `switcheoctl install-validator`
 3. Create the required wallets for running a validator node. **Store the generated mnemonics in a safe, offline location!**
@@ -92,7 +98,6 @@ You're all set to run the validator node!
 
     `curl localhost:26657/abci_info`
 
-
 3. You can check that your wallets have sufficient SWTH after starting through:
 
    `curl http://localhost:1318/auth/accounts/<address>`
@@ -101,8 +106,7 @@ You're all set to run the validator node!
 
 ## Stake as a validator
 
-You should check that the node has caught up to latest block by running `switcheocli status`.
-If your node is lagging behind, you may end up getting slashed and jailed.
+> **You should check that the node has caught up to latest block by running `switcheocli status` before continuing! If your node is still syncing, it will not be able to validate new blocks and you will end up getting slashed / jailed.**
 
 Promote your node to validator with this command:
 
@@ -232,4 +236,3 @@ You can tail all logs for debugging with:
 To tail a specific service's log:
 
 `tail -f ~/.switcheo_logs/start*`
-
