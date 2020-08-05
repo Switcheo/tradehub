@@ -4,21 +4,15 @@
 
 You will need a Linux compute instance for running your Switcheo TradeHub node.
 
-Switcheo TradeHub has only been tested on Ubuntu 18 at the moment, but it should work for all Linux flavors. Both a VPS or bare-metal machine will work, but [security considerations](#Validator-Security) should be taken into account.
+Here are the minimum system requirements for a validator node:
 
-### Digital Ocean example
+**Mainnet**: 8GB RAM, 4 CPUs, 5TB Storage
 
-1. Create an account
-2. Spin up an instance https://www.digitalocean.com/docs/droplets/quickstart/
-    1. Go to Manage - Droplets - Create Droplet
-    2. Choose a distribution - Ubuntu 18.04.3 (LTS) x64
-    3. Choose a plan - Standard $10/mo
-    4. Choose a datacenter region - Singapore (1)
-    5. Authentication - [New SSH Key]((https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)) (or use an existing one)
-    6. Choose a hostname - e.g. `tradehub-validator`
-3. Once your instance has spun up, ssh to it using it's IP address:
+**Testnet**: 2GB RAM, 2 CPUs, 200GB Storage
 
-    `ssh root@<ip_address>`
+Switcheo TradeHub has only been tested on Ubuntu 18 at the moment, but it should work for all Linux flavors.
+
+Both a VPS or bare-metal machine will work, but [security considerations](#Validator-Security) should be taken into account. Additionally, running a full node requires Redis, Postgres and Nginx for storing / serving off-chain data and APIs. Therefore, nodes should be run as a dedicated instane to prevent configuration conflicts.
 
 ## Download a `switcheoctl` release
 
@@ -46,6 +40,19 @@ cd install && sudo ./install.sh && cd - && rm -rf install
 1. Update the validator config file that can be found at `/etc/switcheoctl/config/config.json`:
    1. `sudo nano /etc/switcheoctl/config/config.json`
    2. Choose a unique monikier that identifies you well and replace `hikaru` with it.
+   3. You may update other details later using:
+
+      ```bash
+      switcheocli tx staking edit-validator
+      --moniker="choose a moniker" \
+      --website="https://yourwebsite.example.com" \
+      --identity=<your_keybase_hash> \
+      --details="Choose a good description for yourself / your company." \
+      --chain-id=<chain_id> \
+      --from=val \
+      --commission-rate="0.10"
+      ```
+
 2. Install with: `switcheoctl install-validator`
 3. Create the required wallets for running a validator node. **Store the generated mnemonics in a safe, offline location!**
 
@@ -55,10 +62,15 @@ cd install && sudo ./install.sh && cd - && rm -rf install
      # All other wallets in the keyring must use the same password.
      # Store the generated mnemonics for each wallet as a backup!
      switcheocli keys add oraclewallet --keyring-backend file
-     switcheocli keys add interchainwallet --keyring-backend file
-     switcheocli keys add minter --keyring-backend file
      switcheocli keys add liquidator --keyring-backend file
+     switcheocli keys add minter --keyring-backend file
      ```
+
+    Each wallet serves a different role:
+    - `val`: Your validator consensus / application key.
+    - `oraclewallet`: Oracle application key - validators are oracles at genesis and will need to submit oracle txns result. In future oracles will be incentivized separately.
+    - `liquidator`: Liquidator application key - validators are liquidators at genesis and will need to submit liquidation txns. In future liquidators will be incentivized separately.
+    - `minter`: Minter admin key - needed for testnet only.
 
 4. Send SWTH to all wallets for self-staking and paying network fees. You can deposit NEP-5 SWTH into Switcheo TradeHub and then transfer SWTH from another wallet through the following command:
 
@@ -159,10 +171,6 @@ Validator nodes should only open the P2P port (26656) and rely on your sentry no
 ---
 
 ## FAQ
-
-### Recommended specifications
-
-Mainnet: 8GB memory, 4vCPUs, 5TB storage.
 
 ### Inbound traffic ports
 
