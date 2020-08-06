@@ -2,7 +2,7 @@
 
 ## Requirements
 
-You will need a Linux compute instance for running your Switcheo TradeHub node.
+You will need a Linux, Ubuntu 18 compute instance for running your Switcheo TradeHub node.
 
 Here are the minimum system requirements for a validator node:
 
@@ -10,7 +10,7 @@ Here are the minimum system requirements for a validator node:
 
 **Testnet**: 2GB RAM, 2 CPUs, 200GB Storage
 
-Switcheo TradeHub has only been tested on Ubuntu 18 at the moment, but it should work for all Linux flavors.
+Switcheo TradeHub installation only works on Ubuntu 18 at the moment, other Linux flavors will be available in the near future.
 
 Both a VPS or bare-metal machine will work, but [security considerations](#Validator-Security) should be taken into account.
 
