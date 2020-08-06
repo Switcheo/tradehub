@@ -26,7 +26,7 @@ that may be useful in running a validator or seed node: [https://github.com/Swit
 You may use the following command to download and unzip the release:
 
 ```bash
-curl -L https://github.com/Switcheo/tradehub/releases/download/v0.0.1/install.tar.gz | tar -xz
+curl -L https://github.com/Switcheo/tradehub/releases/download/v0.0.2/install.tar.gz | tar -xz
 ```
 
 ## Install `switcheoctl`
