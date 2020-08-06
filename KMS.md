@@ -59,7 +59,7 @@ Follow the [production YubiHSM guide](https://github.com/iqlusioninc/tmkms/blob/
     Here's an example using a single machine and `softsign`:
 
     ```bash
-    tmkms softsign import ~/.switcheod/config/priv_validator_key.json ~/kms/secrets/switcheochain-consensus.key
+    tmkms softsign import ~/.switcheod/config/priv_validator_key.json /path-to-kms-dir/secrets/switcheochain-consensus.key
     ```
 
      Otherwise copy over the `priv_validator_key.json` file first, and use the appropriate signer subcommand.
@@ -105,7 +105,7 @@ Follow the [production YubiHSM guide](https://github.com/iqlusioninc/tmkms/blob/
     [[providers.softsign]]
     chain_ids = ["switcheochain"]
     key_type = "consensus"
-    path = "/home/ubuntu/kms/secrets/switcheochain-consensus.key"
+    path = "/path-to-kms-dir/secrets/switcheochain-consensus.key"
 
     ## Validator Configuration
 
