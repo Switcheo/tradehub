@@ -44,21 +44,7 @@ cd install && sudo ./install.sh && cd - && rm -rf install
 1. Update the validator config file that can be found at `/etc/switcheoctl/config/config.json`:
    1. `sudo nano /etc/switcheoctl/config/config.json`
    2. Choose a unique monikier that identifies you well and replace `hikaru` with it.
-   3. You may update other details later on using:
-
-      ```bash
-      switcheocli tx staking edit-validator
-      --moniker="choose a moniker" \
-      --website="https://yourwebsite.example.com" \
-      --identity=<your_keybase_hash> \
-      --details="Choose a good description for yourself / your company." \
-      --chain-id=<chain_id> \
-      --from=val \
-      --commission-rate="0.10"
-      ```
-
-      The validator details are similar to that of Cosmos Hub and can be found [here](https://hub.cosmos.network/master/validators/validator-setup.html#edit-validator-description).
-
+   3. You may update other details for your validator later on.
 2. Install with: `switcheoctl install-validator`
 3. Create the required wallets for running a validator node. **Store the generated mnemonics in a safe, offline location!**
 
@@ -106,7 +92,9 @@ You're all set to run the validator node!
 
 ## Stake as a validator
 
-> **You should check that the node has caught up to latest block by running `switcheocli status` before continuing! If your node is still syncing, it will not be able to validate new blocks and you will end up getting slashed / jailed.**
+**:exclamation: WARNING :exclamation:**
+
+**You should check that the node has caught up to latest block by running `switcheocli status` before continuing! If your node is still syncing (`sync_info.catching_up: true`), it will not be able to validate new blocks and you will end up getting slashed / jailed.**
 
 Promote your node to validator with this command:
 
@@ -122,6 +110,24 @@ switcheocli keys show val --keyring-backend file --bech val -a
 curl http://localhost:1317/staking/validators/<val_address>
 ```
 
+You may update your validator information with:
+
+```bash
+switcheocli tx staking edit-validator
+--moniker="choose a name" \
+--website="https://yourwebsite.example.com" \
+--security-contact="security@example.com" \
+--identity=<your_keybase_hash> \
+--details="Choose a good description for yourself / your company." \
+--commission-rate="0.10" \
+--from=val \
+--chain-id=<chain_id> \
+--keyring-backend file \
+--yes
+```
+
+The validator details are similar to that of Cosmos Hub and can be found [here](https://hub.cosmos.network/master/validators/validator-setup.html#edit-validator-description).
+
 ---
 
 ## Validator Security
@@ -132,9 +138,7 @@ Each validator candidate is encouraged to run its operations independently, as d
 
 It is critical that an attacker cannot steal your validator key. If this is possible, it puts the entire stake delegated to the compromised validator at risk. Hardware security modules are a way to mitigate this risk.
 
-HSM modules must support ed25519 signatures for the hub. The YubiHSM can protect a private key but cannot ensure in a secure setting that it won't sign the same block twice.
-
-The Tendermint team is also working on extending the Ledger Nano S application to support validator signing. This app can store recent blocks and mitigate double signing attacks.
+HSM modules must support ed25519 signatures for the hub. Please see the [KMS guide](./KMS.md) for how you may use Tendermint KMS to interface with either the Ledger or YubiHMS2 hardware modules.
 
 It is also important that only one instance of each validator node is active at any time. If two copies of a node is ran with the same validator key, the validator will likely sign the same block and be slashed. As such, any redundant setup where there is a backup node on standby must be configured with extreme care.
 
@@ -178,13 +182,13 @@ Validator nodes should only open the P2P port (26656) and rely on your sentry no
 
 ### Inbound traffic ports
 
-#### Sentry Node
-
 #### Validator Node
 
 The following ports should be open to allow for p2p traffic between nodes:
 
 - 26656
+
+#### Sentry Node
 
 The following ports should be open to allow inbound query traffic:
 
@@ -213,8 +217,7 @@ The following ports should be open to allow inbound query traffic:
 
     `switcheocli tx staking unbond <val_address> 100000000000swth --from val -y -b block --keyring-backend file`
 
-### Stake more tokens
-
+### Stake additional tokens
 
 1. Get your validator address:
 
@@ -223,7 +226,6 @@ The following ports should be open to allow inbound query traffic:
 2. Send a stake txn:
 
     `switcheocli tx staking delegate <val_address> 100000000000swth --from val -y -b block --keyring-backend file`
-
 
 ## Debugging
 
