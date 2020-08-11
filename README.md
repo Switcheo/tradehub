@@ -129,13 +129,14 @@ $ curl http://localhost:26657/status
 
 # In the sentry node(s):
 
-$ switcheoctl stop
+# Edit your node config:
 $ vi ~/.switcheod/config/config.toml
 
 # Comma separated list of peer IDs in `<node_id>@<ip_address>:26656` format to keep private (will not be gossiped to other peers), e.g:
 private_peer_ids = "f09e200a655ce63e49b3710653258a674730e036@3.87.179.235:26656"
 
-$ switcheoctl start
+# Restart your sentry node:
+$ switcheoctl restart -n
 ```
 
 ### Installing your node to a data directory
