@@ -4,12 +4,6 @@
 
 You will need a Linux, Ubuntu 18 compute instance for running your Switcheo TradeHub node.
 
-Here are the minimum system requirements for a validator node:
-
-**Mainnet**: 8GB RAM, 4 CPUs, 5TB Storage
-
-**Testnet**: 2GB RAM, 2 CPUs, 200GB Storage
-
 Switcheo TradeHub installation only works on Ubuntu 18 at the moment, other Linux flavors will be available in the near future.
 
 Both a VPS or bare-metal machine will work, but [security considerations](#Validator-Security) should be taken into account.
@@ -17,6 +11,16 @@ Both a VPS or bare-metal machine will work, but [security considerations](#Valid
 Additionally, running a full node requires Redis, Postgres and Nginx for storing / serving off-chain data and APIs, which will automatically be installed and configured in the following script.
 
 Therefore, nodes should be run as a dedicated instance to prevent configuration conflicts. For development or testing, a docker container can be used and will be made available later on.
+
+Here are the minimum system requirements for a validator node:
+
+**Mainnet**: 8GB RAM, 4 CPUs, 5TB Storage
+
+The 5TB requirement is high due to our 1 second block times and is an estimate based on 1 year of high trading volume. Pruning and compression solutions for old block data to reduce storage requirements is currently our top-most priority. Validators may join the network with 1TB and expand their storage later if required.
+
+Mainnet validators should also read about [sentry nodes](#sentry-nodes-ddos-protection) to help in DDOS protection.
+
+**Testnet**: 2GB RAM, 2 CPUs, 200GB Storage
 
 ## Download a `switcheoctl` release
 
@@ -39,12 +43,30 @@ Install it with the following command:
 cd install && sudo ./install.sh && cd - && rm -rf install
 ```
 
-## Set up a validator node
+### Sentry / public node setup
 
-1. Update the validator config file that can be found at `/etc/switcheoctl/config/config.json`:
+If you are setting up a sentry node, this should be done before setting up your validator node. If you are setting up a public seed / peer node, this setup step will work as well.
+
+1. Update the node config file that can be found at `/etc/switcheoctl/config/config.json`:
    1. `sudo nano /etc/switcheoctl/config/config.json`
    2. Choose a unique monikier that identifies you well and replace `hikaru` with it.
-   3. You may update other details for your validator later on.
+   3. You should allow your node to connect to one other public node by configuring your
+   `persistent_peers`, we have provided the default as Switcheo's sentry node.
+2. Install with: `switcheoctl install-node`
+
+### Validator node setup
+
+1. Update the node config file that can be found at `/etc/switcheoctl/config/config.json`:
+   1. `sudo nano /etc/switcheoctl/config/config.json`
+   2. Choose a unique monikier that identifies you well and replace `hikaru` with it.
+   3. If you are using a sentry node, edit `persistent_peers` with the connection info for your sentry nodes. This should be given as a comma separated list of nodes in `<node_id>@<ip_address>:26656` format.
+
+      For example: `4ff8a406fc16e8b4bc0db59556295f8618fda1d7@52.1.1.1:26656,58995fb71258f3fbccbb79a28164895ffba70d74@52.1.1.2:26656`
+
+      You can find your `node_id` by curl-ing: `http://<ip_address>:26657/status`.
+
+   4. Set `pex` to `false`.
+   5. You may update other details for your validator later on.
 2. Install with: `switcheoctl install-validator`
 3. Create the required wallets for running a validator node. **Store the generated mnemonics in a safe, offline location!**
 
@@ -72,29 +94,86 @@ cd install && sudo ./install.sh && cd - && rm -rf install
 
     `switcheocli tx bank send --from mywallet --keyring-backend file -y -b block val swth1haze3ah2pwdhgstw9v5fcfphqccp359xgrgn5e 100000000000swth`
 
-## Run validator node
+    If you are setting up a testnet node, contact one of a Switcheo support member for some fake SWTH!
 
-You're all set to run the validator node!
+## Running your node
 
-1. Start your node using `switcheoctl`:
+Start your node using `switcheoctl`:
 
-    `switcheoctl start`
+If you are starting a sentry or non-validator node, start it using:
 
-2. Ensure your node is healthy to avoid getting your stake slashed. You can find info on your node at:
+`switcheoctl start -n`
 
-    `curl localhost:26657/abci_info`
+If you are starting a validator node, start it using:
 
-3. You can check that your wallets have sufficient SWTH after starting through:
+`switcheoctl start`
 
-   `curl http://localhost:1318/auth/accounts/<address>`
+If you are running a validator node behind a sentry node, update your sentry node configuration to not gossip your validator node's IP:
 
-   You may need some time for your node to sync to see updated information.
+```bash
+# In the validator node(s):
+
+# Get your node ID(s):
+$ curl http://localhost:26657/status
+
+#  "jsonrpc": "2.0",
+#  "id": -1,
+#  "result": {
+#    "node_info": {
+#        ...
+#      },
+#      "id": "f09e200a655ce63e49b3710653258a674730e036",
+#      ...
+
+# node_id is `f09e200a655ce63e49b3710653258a674730e036`
+
+# In the sentry node(s):
+
+$ switcheoctl stop
+$ vi ~/.switcheod/config/config.toml
+
+# Comma separated list of peer IDs in `<node_id>@<ip_address>:26656` format to keep private (will not be gossiped to other peers), e.g:
+private_peer_ids = "f09e200a655ce63e49b3710653258a674730e036@3.87.179.235:26656"
+
+$ switcheoctl start
+```
+
+### Installing your node to a data directory
+
+By default, the Switcheo TradeHub node is configured to run from the home directory of the installing user.
+
+To run it from a different data directory, simply copy the node files into your data directory and symlink the copied files and folders.
+
+For example to run from `/data`:
+
+```bash
+switcheoctl stop
+cp ~/.switcheo* /data
+ln -s /data/switcheocli  ~/.switcheocli
+ln -s /data/switcheo_config ~/.switcheo_config
+ln -s /data/switcheod ~/.switcheod
+ln -s /data/switcheo_logs ~/.switcheo_logs
+ln -s /data/switcheo_migrations ~/.switcheo_migrations
+switcheoctl start
+```
+
+Ensure file and folder permissions remain unchanged.
 
 ## Stake as a validator
 
 **:exclamation: WARNING :exclamation:**
 
 **You should check that the node has caught up to latest block by running `switcheocli status` before continuing! If your node is still syncing (`sync_info.catching_up: true`), it will not be able to validate new blocks and you will end up getting slashed / jailed.**
+
+Ensure your node is healthy to avoid getting your stake slashed. You can find info on your node at:
+
+  `curl localhost:26657/abci_info`
+
+You can check that your wallets have sufficient SWTH after starting through:
+
+   `curl http://localhost:1318/auth/accounts/<address>`
+
+You may need some time for your node to sync to see updated information.
 
 Promote your node to validator with this command:
 
@@ -146,7 +225,7 @@ It is also important that only one instance of each validator node is active at 
 
 Validators are responsible for ensuring that the network can sustain denial of service attacks.
 
-One recommended way to mitigate these risks is for validators to carefully structure their network topology in a so-called sentry node architecture.
+One recommended way to mitigate these risks is for validators to carefully structure their network topology in a so-called [sentry node architecture](https://forum.cosmos.network/t/sentry-node-architecture-overview/454).
 
 Validator nodes should only connect to full-nodes they trust because they operate them themselves or are run by other validators they know socially. A validator node will typically run in a data center. Most data centers provide direct links the networks of major cloud providers. The validator can use those links to connect to sentry nodes in the cloud. This shifts the burden of denial-of-service from the validator's node directly to its sentry nodes, and may require new sentry nodes be spun up or activated to mitigate attacks on existing ones.
 
@@ -198,6 +277,13 @@ The following ports should be open to allow inbound query traffic:
 - 5001 - REST API (optional when using nginx proxy)
 - 26656 - P2P
 - 26657 - Tendermint API (optional low level API)
+
+### Chain ID
+
+The chain IDs are already configured appropriately if you are using the correct package.
+
+- Testnet: `switcheochain`
+- Mainnet: `switcheo-tradehub-1`
 
 ### Unjail your jailed validator node
 
