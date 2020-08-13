@@ -29,8 +29,14 @@ that may be useful in running a validator or seed node: [https://github.com/Swit
 
 You may use the following command to download and unzip the release:
 
+### Testnet:
 ```bash
-curl -L https://github.com/Switcheo/tradehub/releases/download/v0.0.2/install.tar.gz | tar -xz
+curl -L https://github.com/Switcheo/tradehub/releases/download/v1.2.2/install-testnet.tar.gz | tar -xz
+```
+
+### Mainnet:
+```bash
+curl -L https://github.com/Switcheo/tradehub/releases/download/v1.2.2/install-mainnet.tar.gz | tar -xz
 ```
 
 ## Install `switcheoctl`
@@ -39,8 +45,14 @@ curl -L https://github.com/Switcheo/tradehub/releases/download/v0.0.2/install.ta
 
 Install it with the following command:
 
+### Testnet:
 ```bash
-cd install && sudo ./install.sh && cd - && rm -rf install
+cd install-testnet && sudo ./install-testnet.sh && cd - && rm -rf install-testnet
+```
+
+### Mainnet:
+```bash
+cd install-mainnet && sudo ./install-mainnet.sh && cd - && rm -rf install-mainnet
 ```
 
 ### Sentry / public node setup
