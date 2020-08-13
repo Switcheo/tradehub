@@ -50,13 +50,13 @@ Install it with the following command:
 ### Testnet Install
 
 ```bash
-cd install-testnet && sudo ./install-testnet.sh && cd - && rm -rf install-testnet
+cd install-testnet && sudo ./install.sh && cd - && rm -rf install-testnet
 ```
 
 ### Mainnet Install
 
 ```bash
-cd install-mainnet && sudo ./install-mainnet.sh && cd - && rm -rf install-mainnet
+cd install-mainnet && sudo ./install.sh && cd - && rm -rf install-mainnet
 ```
 
 ### Sentry / public node setup
