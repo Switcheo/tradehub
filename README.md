@@ -188,7 +188,7 @@ Ensure your node is healthy to avoid getting your stake slashed. You can find in
 
 You can check that your wallets have sufficient SWTH after starting through:
 
-   `curl http://localhost:1318/auth/accounts/<address>`
+   `curl http://localhost:5001/auth/accounts/<address>`
 
 You may need some time for your node to sync to see updated information.
 
@@ -203,7 +203,7 @@ You can check that is is successful by getting your validator address and lookin
 ```bash
 switcheocli keys show val --keyring-backend file --bech val -a
 
-curl http://localhost:1317/staking/validators/<val_address>
+curl http://localhost:5001/staking/validators/<val_address>
 ```
 
 You may update your validator information with:
@@ -289,10 +289,10 @@ The following ports should be open to allow for p2p traffic between nodes:
 
 The following ports should be open to allow inbound query traffic:
 
-- 1317 - Nginx reverse proxy to Cosmos SDK API and REST API
-- 1318 - Cosmos SDK API (optional when using nginx proxy)
+- 5001 - Nginx reverse proxy to Cosmos SDK API and REST API
+- 1317 - Cosmos SDK API (optional when using nginx proxy)
 - 5000 - REST WS
-- 5001 - REST API (optional when using nginx proxy)
+- 5002 - REST API (optional when using nginx proxy)
 - 26656 - P2P
 - 26657 - Tendermint API (optional low level API)
 
