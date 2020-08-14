@@ -104,11 +104,11 @@ If you are setting up a sentry node, this should be done before setting up your 
 
 4. Send SWTH to all wallets for self-staking and paying network fees. You can deposit NEP-5 SWTH into Switcheo TradeHub and then transfer SWTH from another wallet through the following command:
 
-    `switcheocli tx bank send --from <from_name> --keyring-backend file -y -b block val <to_address> <amountInSatoshis>swth`
+    `switcheocli tx bank send --from <from_name> --keyring-backend file -y --fees 100000000swth -b block val <to_address> <amountInSatoshis>swth`
 
     Example to send 1000 SWTH from `mywallet` to `swth1haze3..n5e`:
 
-    `switcheocli tx bank send --from mywallet --keyring-backend file -y -b block val swth1haze3ah2pwdhgstw9v5fcfphqccp359xgrgn5e 100000000000swth`
+    `switcheocli tx bank send --from mywallet --keyring-backend file -y --fees 100000000swth -b block val swth1haze3ah2pwdhgstw9v5fcfphqccp359xgrgn5e 100000000000swth`
 
     If you are setting up a testnet node, contact one of a Switcheo support member for some fake SWTH!
 
@@ -217,6 +217,7 @@ switcheocli tx staking edit-validator
 --details="Choose a good description for yourself / your company." \
 --commission-rate="0.10" \
 --from=val \
+--fees 100000000swth \
 --chain-id=<chain_id> \
 --keyring-backend file \
 --yes
@@ -308,7 +309,7 @@ The chain IDs are already configured appropriately if you are using the correct 
 
 2. Send a unjail txn:
 
-    `switcheocli tx slashing unjail --from val --keyring-backend file -y -b block`
+    `switcheocli tx slashing unjail --from val --keyring-backend file -y --fees 100000000swth -b block`
 
 ### Unstake your self-staked tokens
 
@@ -318,7 +319,7 @@ The chain IDs are already configured appropriately if you are using the correct 
 
 2. Send an unstake txn:
 
-    `switcheocli tx staking unbond <val_address> 100000000000swth --from val -y -b block --keyring-backend file`
+    `switcheocli tx staking unbond <val_address> 100000000000swth --from val --fees 100000000swth -y -b block --keyring-backend file`
 
 ### Stake additional tokens
 
@@ -328,7 +329,7 @@ The chain IDs are already configured appropriately if you are using the correct 
 
 2. Send a stake txn:
 
-    `switcheocli tx staking delegate <val_address> 100000000000swth --from val -y -b block --keyring-backend file`
+    `switcheocli tx staking delegate <val_address> 100000000000swth --from val --fees 100000000swth -y -b block --keyring-backend file`
 
 ## Debugging
 
