@@ -165,12 +165,23 @@ For example to run from `/data`:
 
 ```bash
 switcheoctl stop
-cp ~/.switcheo* /data
-ln -s /data/switcheocli  ~/.switcheocli
-ln -s /data/switcheo_config ~/.switcheo_config
-ln -s /data/switcheod ~/.switcheod
-ln -s /data/switcheo_logs ~/.switcheo_logs
-ln -s /data/switcheo_migrations ~/.switcheo_migrations
+
+# Change the destination directory here
+target=/data
+
+mv ~/.switcheo* $target && cd $target
+
+declare -a dirs=(
+    "switcheocli"
+    "switcheo_config"
+    "switcheod"
+    "switcheo_logs"
+    "switcheo_migrations"
+)
+
+for dir in ${dirs[@]}; do mv .$dir $dir && ln -s $target/$dir ~/.$dir; done
+
+unset dirs target
 switcheoctl start
 ```
 
