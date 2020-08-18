@@ -99,8 +99,8 @@ If you are setting up a sentry node, this should be done before setting up your 
     Each wallet serves a different role:
     - `val`: Your validator consensus / application key.
     - `oraclewallet`: Oracle application key - validators are oracles at genesis and will need to submit oracle txns result. In future oracles will be incentivized separately.
+    - `interchainwallet`: Interchain application key - validators are interchains at genesis and will need to submit interchain txns result. In future interchains will be incentivized separately.
     - `liquidator`: Liquidator application key - validators are liquidators at genesis and will need to submit liquidation txns. In future liquidators will be incentivized separately.
-    - `minter`: Minter admin key - needed for testnet only.
 
 4. Send SWTH to all wallets for self-staking and paying network fees. You can deposit NEP-5 SWTH into Switcheo TradeHub and then transfer SWTH from another wallet through the following command:
 
@@ -283,6 +283,40 @@ private_peer_ids = "node_ids_of_private_peers"
 ```
 
 Validator nodes should only open the P2P port (26656) and rely on your sentry nodes for serving other requests. See the FAQ below for more information.
+
+---
+
+## Upgrade
+
+If replacing chain application does not cause a fork on the chain, we can simply patch `switcheod`. If there is a need to upgrade `switcheocli`, we can simply we can simply patch `switcheocli`.
+
+If you have a sentry node, upgrade sentry node first then upgrade validator node.
+
+You would need to perform the following steps fast to prevent getting slashed, if you are a validator node.
+
+The following commands are for **mainnet**, replace necessary commands for **testnet**.
+```bash
+# download switcheoctl, pick the version to upgrade from https://github.com/Switcheo/tradehub/releases
+curl -L https://github.com/Switcheo/tradehub/releases/download/vx.x.x/install-mainnet.tar.gz | tar -xz
+
+# install switcheoctl
+cd install-mainnet && sudo ./install.sh && cd - && rm -rf install-mainnet
+
+# stop services
+switcheoctl stop
+# replace switcheod
+sudo cp /etc/switcheoctl/bin/switcheod /usr/local/bin
+# replace switcheocli
+sudo cp /etc/switcheoctl/bin/switcheocli /usr/local/bin
+# start services
+switcheoctl start
+
+# check that chain is progressing, there should be no errors
+tail -f ~/.switcheo_logs/*
+
+# check version is patched correctly
+curl -s localhost:1317/node_info | jq -r '.application_version.version'
+```
 
 ---
 
