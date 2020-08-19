@@ -93,14 +93,16 @@ If you are setting up a sentry node, this should be done before setting up your 
      # Store the generated mnemonics for each wallet as a backup!
      switcheocli keys add oraclewallet --keyring-backend file
      switcheocli keys add liquidator --keyring-backend file
-     switcheocli keys add minter --keyring-backend file
      ```
 
     Each wallet serves a different role:
-    - `val`: Your validator consensus / application key.
-    - `oraclewallet`: Oracle application key - validators are oracles at genesis and will need to submit oracle txns result. In future oracles will be incentivized separately.
-    - `interchainwallet`: Interchain application key - validators are interchains at genesis and will need to submit interchain txns result. In future interchains will be incentivized separately.
-    - `liquidator`: Liquidator application key - validators are liquidators at genesis and will need to submit liquidation txns. In future liquidators will be incentivized separately.
+    - `val`: Your validator operator wallet.
+    - `oraclewallet`: Oracle subaccount wallet - validators are oracles at genesis and will need to submit oracle result txns when trading begins. In future oracles will be incentivized through a separate incentive model.
+    - `liquidator`: Liquidator subaccount wallet - validators are liquidators at genesis and will need to submit liquidation txns when trading begins. In future liquidators will be incentivized through a separate incentive model.
+    
+    The oracle and liquidator services require public HTTP access to run. If your validator machine does not have such access, you should create those wallets on another machine running a public node (same as sentry node configuraton). These wallets must be bound as subaccounts to the main validator operator wallet through the `subaccounts` command / transaction. **If you do so, you should also create the `val` wallet on a separate machine, and ensure that you do not set any wallet password configuration on supervisord or switcheoctl (leave empty went prompted).**
+    
+    The oracle and liquidator services can be ran separately with the `switcheod oracle` and `switcheod liquidator` commands. However, these will do nothing until trading begins.
 
 4. Send SWTH to all wallets for self-staking and paying network fees. You can deposit NEP-5 SWTH into Switcheo TradeHub and then transfer SWTH from another wallet through the following command:
 
@@ -116,11 +118,11 @@ If you are setting up a sentry node, this should be done before setting up your 
 
 Start your node using `switcheoctl`:
 
-If you are starting a sentry or non-validator node, start it using:
+If you are starting a sentry node, non-validator node, or a validator node without public internet access, start it using:
 
 `switcheoctl start -n`
 
-If you are starting a validator node, start it using:
+If you are starting a validator node together with all required services, start it using:
 
 `switcheoctl start`
 
@@ -206,10 +208,20 @@ You may need some time for your node to sync to see updated information.
 Promote your node to validator with this command:
 
 ```bash
-switcheoctl create-validator -a <amountToStakeInSatoshis>
+# alias command if wallets are on validator machine:
+$ switcheoctl create-validator -a <amountToStakeInSatoshis>
+
+# OR, if creating a validator node without any wallets:
+
+# get node public key on validator machine
+$ switcheod tendermint show-validator
+swthvalconspub1zcjduepqqsuvl3xj58qmfv49je....
+
+# on operator machine
+switcheocli tx staking create-validator --amount <amountToStakeInSatoshis>swth --moniker <yourmoniker> --pubkey <pubkey> --commission-max-change-rate 0.010000000000000000 --commission-max-rate 0.200000000000000000 --commission-rate 0.100000000000000000 --min-self-delegation 1 --fees 100000000swth -b block --from val --keyring-backend file -y
 ```
 
-You can check that is is successful by getting your validator address and looking up the chain:
+You can check that is is successful by getting your validator operator address and looking up the chain:
 
 ```bash
 switcheocli keys show val --keyring-backend file --bech val -a
@@ -235,6 +247,37 @@ switcheocli tx staking edit-validator
 ```
 
 The validator details are similar to that of Cosmos Hub and can be found [here](https://hub.cosmos.network/master/validators/validator-setup.html#edit-validator-description).
+
+## Upgrading your node
+
+When upgrading a minor binary version (e.g. 1.5.0 to 1.5.1), there should be no changes in consensus or chain state. In this case, we can simply patch the node and CLI binaries - `switcheod` and `switcheocli` by hot replacing them.
+
+If you have a sentry node, upgrade sentry node first then upgrade validator node.
+
+You would need to perform the following steps fast to prevent getting slashed, if you are a validator node.
+
+```bash
+# download switcheoctl, pick the version to upgrade from https://github.com/Switcheo/tradehub/releases
+curl -L https://github.com/Switcheo/tradehub/releases/download/vx.x.x/install-<mainnet|testnet>.tar.gz | tar -xz
+
+# install switcheoctl
+cd install-<mainnet|testnet> && sudo ./install.sh && cd - && rm -rf install-<mainnet|testnet>
+
+# stop services
+switcheoctl stop
+# replace switcheod
+sudo cp /etc/switcheoctl/bin/switcheod /usr/local/bin
+# replace switcheocli
+sudo cp /etc/switcheoctl/bin/switcheocli /usr/local/bin
+# start services
+switcheoctl start
+
+# check that chain is progressing, there should be no errors
+tail -f ~/.switcheo_logs/*
+
+# check version is patched correctly
+curl -s localhost:1317/node_info | jq -r '.application_version.version'
+```
 
 ---
 
@@ -283,40 +326,6 @@ private_peer_ids = "node_ids_of_private_peers"
 ```
 
 Validator nodes should only open the P2P port (26656) and rely on your sentry nodes for serving other requests. See the FAQ below for more information.
-
----
-
-## Upgrade
-
-If replacing chain application does not cause a fork on the chain, we can simply patch `switcheod`. If there is a need to upgrade `switcheocli`, we can simply we can simply patch `switcheocli`.
-
-If you have a sentry node, upgrade sentry node first then upgrade validator node.
-
-You would need to perform the following steps fast to prevent getting slashed, if you are a validator node.
-
-The following commands are for **mainnet**, replace necessary commands for **testnet**.
-```bash
-# download switcheoctl, pick the version to upgrade from https://github.com/Switcheo/tradehub/releases
-curl -L https://github.com/Switcheo/tradehub/releases/download/vx.x.x/install-mainnet.tar.gz | tar -xz
-
-# install switcheoctl
-cd install-mainnet && sudo ./install.sh && cd - && rm -rf install-mainnet
-
-# stop services
-switcheoctl stop
-# replace switcheod
-sudo cp /etc/switcheoctl/bin/switcheod /usr/local/bin
-# replace switcheocli
-sudo cp /etc/switcheoctl/bin/switcheocli /usr/local/bin
-# start services
-switcheoctl start
-
-# check that chain is progressing, there should be no errors
-tail -f ~/.switcheo_logs/*
-
-# check version is patched correctly
-curl -s localhost:1317/node_info | jq -r '.application_version.version'
-```
 
 ---
 
