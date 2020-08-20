@@ -191,9 +191,12 @@ If running the `oracle` and `liquidator` services, ensure `WALLET_PASSWORD` is s
 The `start-all` command will attempt to run these subservices and load `oraclewallet` and `liquidator` accounts from the file-based keyring if it is present.
 
 ```bash
-WALLET_PASSWORD=xxx switcheod start-all
-# or
+# run node only (for validator that is running oracle / liquidator service separately)
+switcheod start
+# run node with public apis
 switcheod start-all
+# run node with public apis and oracle and liquidator services
+WALLET_PASSWORD=xxx switcheod start-all
 ```
 
 ### Logs
