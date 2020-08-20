@@ -11,6 +11,11 @@ All nodes need the following databases installed regardless of type.
 
 ## Setup Dependencies
 
+Update package information:
+```bash
+sudo apt-get update
+```
+
 Install and configure redis like so:
 
 ```bash
@@ -82,22 +87,34 @@ EOT
 sudo systemctl restart nginx
 ```
 
+Install jq, a lightweight command-line JSON processor:
+```bash
+sudo apt-get install -y jq
+```
+
 ## Setup Node
 
 ### Download latest release
 
-Release binaries can be found [here](./README.md#Download-a-`switcheoctl`-release). Unzip them to your home directory instructed in the main guide.
+Release binaries can be found [here](./README.md#download-a-switcheoctl-release). Unzip them to your home directory instructed in the main guide.
+
+Copy switcheod and switcheocli to /usr/local/bin
+```bash
+cd install-mainnet && sudo cp bin/switcheod bin/switcheocli /usr/local/bin && cd - && rm -rf install-mainnet
+```
 
 ### Configure environment
 
 Add these to `.bashrc` or otherwise ensure these env variables are applied to the context of the node.
 
 ```bash
+export APP_ENV=production
 export CHAIN_ID=switcheo-tradehub-1 # or "switcheochain" for testnet
 export TENDERMINT_SERVER_HOST=localhost
 export TENDERMINT_SERVER_PORT=26657 # default
 export COSMOS_REST_SERVER_HOST=0.0.0.0
-export COSMOS_REST_SERVER_PORT=1317 # make ure this matches nginx
+export COSMOS_REST_SERVER_PORT=1317 # make sure this matches nginx
+export API_REST_PORT=5002 # make sure this matches nginx
 export POSTGRES_HOST=localhost
 export POSTGRES_PORT=5432
 export POSTGRES_DB=switcheochain
@@ -110,11 +127,16 @@ export SWTH_UPGRADER=cosmos1flqfs2dzzkrf49aj5pg0nj340jdqzgje02smww
 export SEND_ETH_TXNS=1
 ```
 
+Source ~/.bashrc:
+```bash
+source ~/.bashrc
+```
+
 ### Configure node
 
 ```bash
-# initialize switcheod
-switcheod init "<monkier>" --chain-id $CHAIN_ID
+# initialize validators's and node's configuration files. Change <moniker> to your identifier.
+switcheod init <moniker> --chain-id $CHAIN_ID
 
 # configure switcheocli
 switcheocli config chain-id $CHAIN_ID
@@ -142,19 +164,25 @@ sed -i -e "s/pex.*/pex = false/g" ~/.switcheod/config/config.toml
 # note that this configuration may differ if you are running in sentry configuration!
 
 ## testnet
-$persistent_peers=026b889e51c31c5370c4a6b43d7193d583efa4a2@54.255.42.175:26656
-$node_url=54.255.42.175:26657
+persistent_peers=026b889e51c31c5370c4a6b43d7193d583efa4a2@54.255.42.175:26656
+node_url=54.255.42.175:26657
 
 ## mainnet
-$persistent_peers=d363e17a3d4c7649e5c59bcd33176a476433108c@54.179.34.89:26656
-$node_url=54.179.34.89:26657
+persistent_peers=d363e17a3d4c7649e5c59bcd33176a476433108c@54.179.34.89:26656
+node_url=54.179.34.89:26657
 
 # set persistent_peers
-$cmd="s/persistent_peers = \"\"/persistent_peers = \"${persistent_peers}\"/g"
+cmd="s/persistent_peers = \"\"/persistent_peers = \"${persistent_peers}\"/g"
 sed -i -e "${cmd}" ~/.switcheod/config/config.toml
 
 # load genesis file
-wget -O "${node_url}/genesis/ ~/.switcheod/config/genesis.json
+curl -s "${node_url}/genesis" | jq '.result.genesis' > ~/.switcheod/config/genesis.json
+
+# initialise supporting directories
+mkdir -p ~/.switcheo_logs/old ~/.switcheo_migrations/migrate ~/.switcheo_config
+
+# initialise db
+createdb switcheochain
 ```
 
 ### Running node
@@ -166,6 +194,12 @@ The `start-all` command will attempt to run these subservices and load `oraclewa
 WALLET_PASSWORD=xxx switcheod start-all
 # or
 switcheod start-all
+```
+
+### Logs
+You can read logs here:
+```bash
+tail -f ~/.switcheo_logs/*
 ```
 
 ### Promoting a node to a validator
