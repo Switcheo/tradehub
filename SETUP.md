@@ -4,7 +4,9 @@ This guide contains steps to set up a node manually.
 
 ## Requirements
 
-All nodes need the following databases installed regardless of type.
+Nodes that serve public APIs need the following databases installed. 
+Validators need at least one full node with these installed to run the oracle service, but can
+skip installing these for the validator node itself.
 
 - Redis
 - Postgresql
@@ -176,6 +178,7 @@ cmd="s/persistent_peers = \"\"/persistent_peers = \"${persistent_peers}\"/g"
 sed -i -e "${cmd}" ~/.switcheod/config/config.toml
 
 # load genesis file
+apt-get install jq -y # next cmd uses jq
 curl -s "${node_url}/genesis" | jq '.result.genesis' > ~/.switcheod/config/genesis.json
 
 # initialise supporting directories
