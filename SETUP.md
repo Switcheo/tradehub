@@ -2,9 +2,29 @@
 
 This guide contains steps to set up a node manually.
 
+## Architecture
+
+Please read about the [sentry node architecture](./README.md#Sentry-Nodes-(DDOS-Protection)) for the recommended production environment. Generally two nodes, one validator and one sentry / public node should be used.
+
+### Services
+
+The `switcheod` binary contains a full Switcheo TradeHub node as well as several other services.
+
+- `switcheod start` runs just the full node
+- `switcheod rest-server` runs the cosmos-sdk REST server that allows for querying of chain data.
+- `switcheod persistence` runs a service that indexes trade transactions into postgresql and redis.
+- `switcheod interchain` runs a service that watches cross-chain transactions for additional indexing into `persistence` - run this if you need that data.
+- `switcheod rest-api` runs a custom REST API server that serves queries from data indexed by the `persistence` service.
+- `switcheod ws-api` runs a custom WS API server that streams data that is indexed by the `persistence` service.
+- `switcheod oracle` runs the oracle service - validators need to run this when trading begins, however this can be done on a separate node (such as a sentry node). Additionally, `persistence` and `rest-api` need to be running.
+- `switcheod liquidator` runs the liquidator service - only one validator needs to run this, but any validators that do will earn additional rewards. This can be done on a separate node (such as a sentry node).
+- `switcheod start-all` runs all the above services.
+- `switcheod relayer` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be ran by exchange operators.
+
 ## Requirements
 
-Nodes that serve public APIs need the following databases installed. 
+Nodes that serve public APIs (running `persistence` and `reset-api`, or `ws-api`) need the following databases installed.
+
 Validators need at least one full node with these installed to run the oracle service, but can
 skip installing these for the validator node itself.
 
@@ -14,6 +34,7 @@ skip installing these for the validator node itself.
 ## Setup Dependencies
 
 Update package information:
+
 ```bash
 sudo apt-get update
 ```
@@ -89,11 +110,6 @@ EOT
 sudo systemctl restart nginx
 ```
 
-Install jq, a lightweight command-line JSON processor:
-```bash
-sudo apt-get install -y jq
-```
-
 ## Setup Node
 
 ### Download latest release
@@ -101,6 +117,7 @@ sudo apt-get install -y jq
 Release binaries can be found [here](./README.md#download-a-switcheoctl-release). Unzip them to your home directory instructed in the main guide.
 
 Copy switcheod and switcheocli to /usr/local/bin
+
 ```bash
 cd install-mainnet && sudo cp bin/switcheod bin/switcheocli /usr/local/bin && cd - && rm -rf install-mainnet
 ```
@@ -129,7 +146,8 @@ export SWTH_UPGRADER=cosmos1flqfs2dzzkrf49aj5pg0nj340jdqzgje02smww
 export SEND_ETH_TXNS=1
 ```
 
-Source ~/.bashrc:
+If using `.bashrc`, remember to reload it with:
+
 ```bash
 source ~/.bashrc
 ```
@@ -202,8 +220,10 @@ switcheod start-all
 WALLET_PASSWORD=xxx switcheod start-all
 ```
 
-### Logs
-You can read logs here:
+### Logging and debugging
+
+You can find the logs from `switcheod` here:
+
 ```bash
 tail -f ~/.switcheo_logs/*
 ```
