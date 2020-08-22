@@ -66,8 +66,9 @@ If you are setting up a sentry node, this should be done before setting up your 
 1. Update the node config file that can be found at `/etc/switcheoctl/config/config.json`:
    1. `sudo nano /etc/switcheoctl/config/config.json`
    2. Choose a unique monikier that identifies you well and replace `hikaru` with it.
-   3. You should allow your node to connect to one other public node by configuring your
-   `persistent_peers`, we have provided the default as Switcheo's sentry node.
+   3. You should allow your node to connect to other public nodes by configuring your
+   `persistent_peers`, we have provided the default as Switcheo's sentry node. This should be given as a comma separated list of nodes in `<node_id>@<ip_address>:26656` format.
+   4. It is important to manage your persistent peers. More on that [here](#managing-p2p-connections).
 2. Install with: `switcheoctl install-node`
 
 ### Validator node setup
@@ -81,7 +82,7 @@ If you are setting up a sentry node, this should be done before setting up your 
 
       You can find your `node_id` by curl-ing: `http://<ip_address>:26657/status`.
 
-   4. Set `pex` to `false`.
+   4. Set `pex` to `false` if you have sentry nodes. If you do not have sentry nodes, it is important to manage your persistent peers. More on that [here](#managing-p2p-connections).
    5. You may update other details for your validator later on.
 2. Install with: `switcheoctl install-validator`
 3. Create the required wallets for running a validator node. **Store the generated mnemonics in a safe, offline location!**
@@ -150,12 +151,18 @@ $ curl http://localhost:26657/status
 # Edit your node config:
 $ vi ~/.switcheod/config/config.toml
 
-# Comma separated list of peer IDs in `<node_id>@<ip_address>:26656` format to keep private (will not be gossiped to other peers), e.g:
-private_peer_ids = "f09e200a655ce63e49b3710653258a674730e036@3.87.179.235:26656"
+# Comma separated list of peer IDs in `<node_id` format to keep private (will not be gossiped to other peers), e.g:
+private_peer_ids = "f09e200a655ce63e49b3710653258a674730e036"
 
 # Restart your sentry node:
 $ switcheoctl restart -n
 ```
+
+### Managing p2p connections
+
+Your sentry node should define a list of persistent peers that you know will always be online. After installing your node, you should update persistent_peers in `~/.switcheod/config/config.toml`, and restart your node. Ensure that your sentry node's `pex` is set to true in `~/.switcheod/config/config.toml`, otherwise only the persistent_peers list is available for connection.
+
+You may add Switcheo's sentry nodes, but it would be better to add other sentry nodes as well: `"d363e17a3d4c7649e5c59bcd33176a476433108c@54.179.34.89:26656,ca1189045e84d2be5db0a1ed326ce7cd56015f11@54.255.5.46:26656,d233cd97f8c81b7705ea16b962a4101063875151@175.41.151.35:26656"`
 
 ### Installing your node to a data directory
 
