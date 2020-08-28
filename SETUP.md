@@ -228,7 +228,23 @@ You can find the logs from `switcheod` here:
 tail -f ~/.switcheo_logs/*
 ```
 
-### Promoting a node to a validator
+### Stake as a validator
+
+**:exclamation: WARNING :exclamation:**
+
+**You should check that the node has caught up to latest block by running `switcheocli status` before continuing! If your node is still syncing (`sync_info.catching_up: true`), it will not be able to validate new blocks and you will end up getting slashed / jailed.**
+
+Ensure your node is healthy to avoid getting your stake slashed. You can find info on your node at:
+
+  `curl localhost:26657/abci_info`
+
+You can check that your wallets have sufficient SWTH after starting through:
+
+   `curl http://localhost:5001/auth/accounts/<address>`
+
+You may need some time for your node to sync to see updated information.
+
+Promote your node to validator with this command:
 
 ```bash
 # get node public key on validator machine
