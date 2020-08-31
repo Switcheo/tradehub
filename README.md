@@ -103,12 +103,11 @@ If you are setting up a sentry node, this should be done before setting up your 
 
     The oracle and liquidator services require public HTTP access to run. If your validator machine does not have such access, you should create those wallets on another machine running a public node (same as sentry node configuraton). These wallets must be bound as subaccounts to the main validator operator wallet through the `subaccounts` command / transaction. **If you do so, you should also create the `val` wallet on a separate machine, and ensure that you do not set any wallet password configuration on supervisord or switcheoctl (leave empty went prompted).**
 
-   To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the following cli commands:
-   
-        ```bash
+   To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the following cli commands:        
+         ```bash
         switcheocli tx subaccount create-sub-account --from val --keyring-backend file -y --fees 100000000swth -b block val <oraclewallet-swth-address> <val-swth-address>
         switcheocli tx subaccount activate-sub-account --from oraclewallet --keyring-backend file -y --fees 100000000swth -b block oraclewallet <oraclewallet-swth-address> <val-swth-address>
-        ```
+     ```
 
     The oracle and liquidator services can be ran separately with the `switcheod oracle` and `switcheod liquidator` commands. However, these will do nothing until trading begins.
 
