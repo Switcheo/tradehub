@@ -106,12 +106,8 @@ If you are setting up a sentry node, this should be done before setting up your 
    To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the following cli commands:        
  
      ```bash
-     switcheocli keys add val --keyring-backend file
-     # You will need to choose a secure password when adding the first wallet.
-     # All other wallets in the keyring must use the same password.
-     # Store the generated mnemonics for each wallet as a backup!
-     switcheocli keys add oraclewallet --keyring-backend file
-     switcheocli keys add liquidator --keyring-backend file
+     switcheocli tx subaccount create-sub-account --from val --keyring-backend file -y --fees 100000000swth -b block val <oraclewallet-swth-address> <val-swth-address>
+     switcheocli tx subaccount activate-sub-account --from oraclewallet --keyring-backend file -y --fees 100000000swth -b block oraclewallet <oraclewallet-swth-address> <val-swth-address>
      ```
 
     The oracle and liquidator services can be ran separately with the `switcheod oracle` and `switcheod liquidator` commands. However, these will do nothing until trading begins.
