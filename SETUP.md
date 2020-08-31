@@ -13,13 +13,13 @@ The `switcheod` binary contains a full Switcheo TradeHub node as well as several
 - `switcheod start` runs just the full node
 - `switcheod rest-server` runs the cosmos-sdk REST server that allows for querying of chain data.
 - `switcheod persistence` runs a service that indexes trade transactions into postgresql and redis.
-- `switcheod interchain` runs a service that watches cross-chain transactions for additional indexing into `persistence` - run this if you need that data.
+- `switcheod interchain` runs a service that writes transaction hashes for deposits and withdrawals into the `persistence` database - run this if you need that data.
 - `switcheod rest-api` runs a custom REST API server that serves queries from data indexed by the `persistence` service.
 - `switcheod ws-api` runs a custom WS API server that streams data that is indexed by the `persistence` service.
 - `switcheod oracle` runs the oracle service - validators need to run this when trading begins, however this can be done on a separate node (such as a sentry node). Additionally, `persistence` and `rest-api` need to be running.
 - `switcheod liquidator` runs the liquidator service - only one validator needs to run this, but any validators that do will earn additional rewards. This can be done on a separate node (such as a sentry node).
 - `switcheod start-all` runs all the above services.
-- `switcheod relayer` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be ran by exchange operators.
+- `switcheod relayer` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be run by exchange operators.
 
 ## Requirements
 
