@@ -365,6 +365,8 @@ sudo vi /etc/pam.d/common-session
 session required        pam_limits.so
 ```
 
+Restart session. `exit`
+
 ```bash
 # check updated limit
 ulimit -n
