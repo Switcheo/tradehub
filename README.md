@@ -104,6 +104,10 @@ If you are setting up a sentry node, this should be done before setting up your 
     The oracle and liquidator services require public HTTP access to run. If your validator machine does not have such access, you should create those wallets on another machine running a public node (same as sentry node configuraton). These wallets must be bound as subaccounts to the main validator operator wallet through the `subaccounts` command / transaction. **If you do so, you should also create the `val` wallet on a separate machine, and ensure that you do not set any wallet password configuration on supervisord or switcheoctl (leave empty went prompted).**
 
     The oracle and liquidator services can be ran separately with the `switcheod oracle` and `switcheod liquidator` commands. However, these will do nothing until trading begins.
+    
+    The oracle module uses the voting power of your validator address to determine the weightage given to your oracle transactions. For this to work correctly, the `oraclewallet` address must be linked with your validator address using the following commands:
+    `switcheocli tx subaccount create-sub-account --from val --keyring-backend file -y --fees 100000000swth -b block val <oraclewallet-swth-address> <val-swth-address>`
+    `switcheocli tx subaccount activate-sub-account --from oraclewallet --keyring-backend file -y --fees 100000000swth -b block oraclewallet <oraclewallet-swth-address> <val-swth-address>`
 
 4. Send SWTH to all wallets for self-staking and paying network fees. You can deposit NEP-5 SWTH into Switcheo TradeHub and then transfer SWTH from another wallet through the following command:
 
