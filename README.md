@@ -140,7 +140,7 @@ If you are running a validator node behind a sentry node, update your sentry nod
 # In the validator node(s):
 
 # Get your node ID(s):
-$ curl http://localhost:26657/status
+$ curl http://localhost:26659/status
 
 #  "jsonrpc": "2.0",
 #  "id": -1,
@@ -211,7 +211,7 @@ Ensure file and folder permissions remain unchanged.
 
 Ensure your node is healthy to avoid getting your stake slashed. You can find info on your node at:
 
-  `curl localhost:26657/abci_info`
+  `curl localhost:26659/abci_info`
 
 You can check that your wallets have sufficient SWTH after starting through:
 
@@ -290,7 +290,7 @@ switcheoctl start
 tail -f ~/.switcheo_logs/*
 
 # check version is patched correctly
-curl -s localhost:1317/node_info | jq -r '.application_version.version'
+curl -s localhost:1318/node_info | jq -r '.application_version.version'
 ```
 
 ---
@@ -393,24 +393,41 @@ switcheoctl restart -n # for sentry node
 
 ## FAQ
 
+### Ports used
+
+#### Validator Node
+
+- 26656 - P2P
+
+#### Sentry Node
+
+- 5001 - Nginx reverse proxy to Cosmos SDK API and REST API
+- 1318 - Cosmos SDK API (optional when using nginx proxy)
+- 1317 - Nginx reverse proxy to Cosmos SDK API
+- 5000 - REST WS
+- 5002 - REST API (optional when using nginx proxy)
+- 26656 - P2P
+- 26659 - Tendermint API (optional low level API)
+- 26657 - Nginx reverse proxy to Tendermint API
+
 ### Inbound traffic ports
 
 #### Validator Node
 
 The following ports should be open to allow for p2p traffic between nodes:
 
-- 26656
+- 26656 - P2P
 
 #### Sentry Node
 
 The following ports should be open to allow inbound query traffic:
 
 - 5001 - Nginx reverse proxy to Cosmos SDK API and REST API
-- 1317 - Cosmos SDK API (optional when using nginx proxy)
+- 1317 - Nginx reverse proxy to Cosmos SDK API
 - 5000 - REST WS
 - 5002 - REST API (optional when using nginx proxy)
 - 26656 - P2P
-- 26657 - Tendermint API (optional low level API)
+- 26657 - Nginx reverse proxy to Tendermint API
 
 ### Chain ID
 
