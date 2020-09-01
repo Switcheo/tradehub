@@ -402,12 +402,12 @@ switcheoctl restart -n # for sentry node
 #### Sentry Node
 
 - 5001 - Nginx reverse proxy to Cosmos SDK API and REST API
-- 1318 - Cosmos SDK API (optional when using nginx proxy)
+- 1318 - Cosmos SDK API
 - 1317 - Nginx reverse proxy to Cosmos SDK API
 - 5000 - REST WS
-- 5002 - REST API (optional when using nginx proxy)
+- 5002 - REST API
 - 26656 - P2P
-- 26659 - Tendermint API (optional low level API)
+- 26659 - Tendermint API
 - 26657 - Nginx reverse proxy to Tendermint API
 
 ### Inbound traffic ports
