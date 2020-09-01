@@ -19,7 +19,7 @@ The `switcheod` binary contains a full Switcheo TradeHub node as well as several
 - `switcheod oracle` runs the oracle service - validators need to run this when trading begins, however this can be done on a separate node (such as a sentry node). Additionally, `persistence` and `rest-api` need to be running.
 - `switcheod liquidator` runs the liquidator service - only one validator needs to run this, but any validators that do will earn additional rewards. This can be done on a separate node (such as a sentry node).
 - `switcheod relayer` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be run by exchange operators.
-- `switcheod start-all` runs all the above services.
+- `switcheod start-all -a` runs all the above services.
 
 ## Requirements
 
@@ -82,12 +82,25 @@ sudo apt-get install -y nginx
 
 # setup nginx proxy such that cosmos REST endpoints go to 1317
 # while the rest goes to the custom off chain REST server at 5002.
+
+# create nginx cache folder
+sudo mkdir -p /var/cache/nginx
+
 sudo bash -c 'cat <<EOT >> /etc/nginx/conf.d/switcheocli.conf
+proxy_cache_path /var/cache/nginx/tradescan levels=1:2 keys_zone=tradescan_cache:10m max_size=10g inactive=2s use_temp_path=off;
+proxy_cache_path /var/cache/nginx/cosmos_rest_server levels=1:2 keys_zone=cosmos_rest_server_cache:10m max_size=10g inactive=2s use_temp_path=off;
+proxy_cache_path /var/cache/nginx/tendermint_api_server levels=1:2 keys_zone=tendermint_api_server_cache:10m max_size=10g inactive=2s use_temp_path=off;
+
 server {
     listen       5001 default_server;
     listen       [::]:5001 default_server;
 
     server_name  _;
+
+    proxy_cache tradescan_cache;
+    proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+    proxy_cache_valid any 1s;
+    proxy_cache_lock on;
 
     location / {
         proxy_pass  http://127.0.0.1:5002;
@@ -98,9 +111,41 @@ server {
         proxy_pass  http://127.0.0.1:1317;
     }
 
-    location ~ ^/(staking|supply|slashing|distribution|auth|txs|subaccount|blocks)/ {
+    location ~ ^/(staking|supply|slashing|distribution|auth|txs|subaccount|blocks|bank)/ {
         add_header 'Access-Control-Allow-Origin' '*';
         proxy_pass  http://127.0.0.1:1317;
+    }
+}
+
+server {
+    listen       1317 default_server;
+    listen       [::]:1317 default_server;
+
+    server_name  _;
+
+    proxy_cache cosmos_rest_server_cache;
+    proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+    proxy_cache_valid any 1s;
+    proxy_cache_lock on;
+
+    location / {
+        proxy_pass  http://127.0.0.1:1318;
+    }
+}
+
+server {
+    listen       26657 default_server;
+    listen       [::]:26657 default_server;
+
+    server_name  _;
+
+    proxy_cache tendermint_api_server_cache;
+    proxy_ignore_headers X-Accel-Expires Expires Cache-Control;
+    proxy_cache_valid any 1s;
+    proxy_cache_lock on;
+
+    location / {
+        proxy_pass  http://127.0.0.1:26659;
     }
 }
 EOT
@@ -130,9 +175,9 @@ Add these to `.bashrc` or otherwise ensure these env variables are applied to th
 export APP_ENV=production
 export CHAIN_ID=switcheo-tradehub-1 # or "switcheochain" for testnet
 export TENDERMINT_SERVER_HOST=localhost
-export TENDERMINT_SERVER_PORT=26657 # default
+export TENDERMINT_SERVER_PORT=26659 # default
 export COSMOS_REST_SERVER_HOST=0.0.0.0
-export COSMOS_REST_SERVER_PORT=1317 # make sure this matches nginx
+export COSMOS_REST_SERVER_PORT=1318 # make sure this matches nginx
 export API_REST_PORT=5002 # make sure this matches nginx
 export POSTGRES_HOST=localhost
 export POSTGRES_PORT=5432
@@ -144,6 +189,7 @@ export LOG_TO_FILE=1
 export LOG_LEVEL=info
 export SWTH_UPGRADER=cosmos1flqfs2dzzkrf49aj5pg0nj340jdqzgje02smww
 export SEND_ETH_TXNS=1
+export MINFDS=1024
 ```
 
 If using `.bashrc`, remember to reload it with:
@@ -174,7 +220,7 @@ sed -i -e 's/pruning-interval = "0"/pruning-interval = "10"/g' ~/.switcheod/conf
 
 # if this is a public node, listen on public interfaces and disable CORS:
 sed -i -e 's/cors_allowed_origins = \[\]/cors_allowed_origins = \["*"\]/g' ~/.switcheod/config/config.toml
-sed -i -e 's/laddr = "tcp:\/\/127.0.0.1:26657"/laddr = "tcp:\/\/0.0.0.0:26657"/g' ~/.switcheod/config/config.toml
+sed -i -e 's/laddr = "tcp:\/\/127.0.0.1:26657"/laddr = "tcp:\/\/0.0.0.0:26659"/g' ~/.switcheod/config/config.toml
 sed -i -e 's/addr_book_strict = true/addr_book_strict = false/g' ~/.switcheod/config/config.toml
 
 # if this is a validator node behind a sentry node, disable pex:
@@ -188,7 +234,7 @@ persistent_peers=026b889e51c31c5370c4a6b43d7193d583efa4a2@54.255.42.175:26656
 node_url=54.255.42.175:26657
 
 ## mainnet
-persistent_peers=d363e17a3d4c7649e5c59bcd33176a476433108c@54.179.34.89:26656
+persistent_peers=d363e17a3d4c7649e5c59bcd33176a476433108c@54.255.5.46:26656
 node_url=54.179.34.89:26657
 
 # set persistent_peers
@@ -209,15 +255,15 @@ createdb switcheochain
 ### Running node
 
 If running the `oracle` and `liquidator` services, ensure `WALLET_PASSWORD` is set.
-The `start-all` command will attempt to run these subservices and load `oraclewallet` and `liquidator` accounts from the file-based keyring if it is present.
+The `start-all -a` command will attempt to run these subservices and load `oraclewallet` and `liquidator` accounts from the file-based keyring if it is present.
 
 ```bash
 # run node only (for validator that is running oracle / liquidator service separately)
 switcheod start
 # run node with public apis
-switcheod start-all
+switcheod start-all -a
 # run node with public apis and oracle and liquidator services
-WALLET_PASSWORD=xxx switcheod start-all
+WALLET_PASSWORD=xxx switcheod start-all -a
 ```
 
 ### Logging and debugging
@@ -266,9 +312,10 @@ You can use supervisord or systemd to ensure your node remains up. Here is an ex
 ```config
 [supervisord]
 environment=WALLET_PASSWORD="the-keyring-password" # only if running all services
+minfds=1024
 [program:switcheod]
 user=${CURRENT_USER}
-command=switcheod start-all
+command=switcheod start-all -a
 autostart=true
 autorestart=true
 startretries=100
