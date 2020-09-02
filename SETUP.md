@@ -294,6 +294,7 @@ Promote your node to validator with this command:
 
 ```bash
 # get node public key on validator machine
+# testnet: switcheod node tendermint show-validator
 $ switcheod tendermint show-validator
 swthvalconspub1zcjduepqqsuvl3xj58qmfv49je....
 

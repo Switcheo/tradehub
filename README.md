@@ -228,6 +228,7 @@ $ switcheoctl create-validator -a <amountToStakeInSatoshis>
 # OR, if creating a validator node without any wallets:
 
 # get node public key on validator machine
+# testnet: switcheod node tendermint show-validator
 $ switcheod tendermint show-validator
 swthvalconspub1zcjduepqqsuvl3xj58qmfv49je....
 
