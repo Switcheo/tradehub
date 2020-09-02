@@ -232,6 +232,11 @@ $ switcheod tendermint show-validator
 swthvalconspub1zcjduepqqsuvl3xj58qmfv49je....
 
 # on operator machine
+# NOTE: default commision rates are used in this command, but you should change them as needed
+# --commission-max-change-rate 0.010000000000000000: Max increase of 1% in commission rate every 24 hours
+# --commission-max-rate 0.200000000000000000: Max 20% commission rate
+# --commission-rate 0.100000000000000000: Start with 10% commission rate
+# --min-self-delegation 1: Minimum number of SWTH tokens that must be delegated
 switcheocli tx staking create-validator --amount <amountToStakeInSatoshis>swth --moniker <yourmoniker> --pubkey <pubkey> --commission-max-change-rate 0.010000000000000000 --commission-max-rate 0.200000000000000000 --commission-rate 0.100000000000000000 --min-self-delegation 1 --fees 100000000swth -b block --from val --keyring-backend file -y
 ```
 
