@@ -270,6 +270,8 @@ To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the
   switcheocli tx subaccount activate-sub-account --from oraclewallet --keyring-backend file -y --fees 100000000swth -b block oraclewallet <oraclewallet-swth-address> <val-swth-address>
   ```
 
+This will allow your `oraclewallet` to send oracle votes on behalf of your `val` wallet.
+
 ## Upgrading your node
 
 When upgrading a minor binary version (e.g. 1.5.0 to 1.5.1), there should be no changes in consensus or chain state. In this case, we can simply patch the node and CLI binaries - `switcheod` and `switcheocli` by hot replacing them.
