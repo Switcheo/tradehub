@@ -32,7 +32,7 @@ You may use the following command to download and unzip the release:
 ### Testnet Release
 
 ```bash
-curl -L https://github.com/Switcheo/tradehub/releases/download/v1.6.0/install-testnet.tar.gz | tar -xz
+curl -L https://github.com/Switcheo/tradehub/releases/download/v1.6.1/install-testnet.tar.gz | tar -xz
 ```
 
 ### Mainnet Release
