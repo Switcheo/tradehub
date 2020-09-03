@@ -271,6 +271,7 @@ To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the
   ```
 
 This will allow your `oraclewallet` to send oracle votes on behalf of your `val` wallet.
+You should run `switcheoctl restart` after linking your wallets, this will allow the oracle to start correctly.
 
 ## Upgrading your node
 
