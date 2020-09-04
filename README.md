@@ -263,6 +263,9 @@ The validator details are similar to that of Cosmos Hub and can be found [here](
 
 ## Link your wallets through subaccounts
 
+The `oraclewallet` should be linked to your `val` wallet as a subaccount, this will allow the `oraclewallet` to send oracle votes on behalf of your `val` wallet.
+Before linking the wallets, it should be ensured that both the `val` and `oraclewallet` addresses have sufficient funds to pay fees.
+
 To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the following cli commands:
 
   ```bash
@@ -270,8 +273,7 @@ To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the
   switcheocli tx subaccount activate-sub-account --from oraclewallet --keyring-backend file -y --fees 100000000swth -b block oraclewallet <oraclewallet-swth-address> <val-swth-address>
   ```
 
-This will allow your `oraclewallet` to send oracle votes on behalf of your `val` wallet.
-You should run `switcheoctl restart` after linking your wallets, this will allow the oracle to start correctly.
+You should run `switcheoctl restart` after linking your wallets, this will allow the oracle service to start correctly.
 
 ## Upgrading your node
 
