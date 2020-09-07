@@ -35,7 +35,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 Install `tmkms` using Cargo. Set `--features=yubihsm` or `--features=ledgertm` to only install support for those signature providers. See also [yubihsm-server](https://github.com/iqlusioninc/tmkms/blob/develop/README.yubihsm.md#yubihsm-server-feature) for additional administration options.
 
 ```bash
-cargo install tmkms cargo install tmkms --features=yubihsm,ledgertm,softsign --version=0.8.0
+cargo install tmkms --features=yubihsm,ledgertm,softsign --version=0.8.0
 ```
 
 This may take awhile.
