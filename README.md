@@ -32,7 +32,7 @@ You may use the following command to download and unzip the release:
 ### Testnet Release
 
 ```bash
-curl -L https://github.com/Switcheo/tradehub/releases/download/v1.6.2/install-testnet.tar.gz | tar -xz
+curl -L https://github.com/Switcheo/tradehub/releases/download/v1.7.0/install-testnet.tar.gz | tar -xz
 ```
 
 ### Mainnet Release
@@ -180,6 +180,13 @@ target=/data
 
 mv ~/.switcheo* $target && cd $target
 
+# testnet
+declare -a dirs=(
+    "switcheocli"
+    "switcheod"
+)
+
+# mainnet
 declare -a dirs=(
     "switcheocli"
     "switcheo_config"
@@ -300,6 +307,11 @@ sudo cp /etc/switcheoctl/bin/switcheocli /usr/local/bin
 switcheoctl start
 
 # check that chain is progressing, there should be no errors
+
+# testnet
+tail -f ~/.switcheod/logs/*
+
+# mainnet
 tail -f ~/.switcheo_logs/*
 
 # check version is patched correctly
@@ -483,8 +495,16 @@ Logs for all services / processes under Switcheo TradeHub are written to the .sw
 
 You can tail all logs for debugging with:
 
+# testnet
+`tail -f ~/.switcheod/logs/*`
+
+# mainnet
 `tail -f ~/.switcheo_logs/*`
 
 To tail a specific service's log:
 
+# testnet
+`tail -f ~/.switcheod/logs/start*`
+
+# mainnet
 `tail -f ~/.switcheo_logs/start*`

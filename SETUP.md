@@ -19,7 +19,7 @@ The `switcheod` binary contains a full Switcheo TradeHub node as well as several
 - `switcheod oracle` runs the oracle service - validators need to run this when trading begins, however this can be done on a separate node (such as a sentry node). Additionally, `persistence` and `rest-api` need to be running.
 - `switcheod liquidator` runs the liquidator service - only one validator needs to run this, but any validators that do will earn additional rewards. This can be done on a separate node (such as a sentry node).
 - `switcheod relayer` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be run by exchange operators.
-- `switcheod start-all -a` runs all the above services.
+- `switcheod start -a` runs all the above services.
 
 ## Requirements
 
@@ -246,6 +246,10 @@ apt-get install jq -y # next cmd uses jq
 curl -s "${node_url}/genesis" | jq '.result.genesis' > ~/.switcheod/config/genesis.json
 
 # initialise supporting directories
+
+## testnet
+mkdir -p ~/.switcheod/logs/old ~/.switcheod/migrations/migrate ~/.switcheod/config/oracles
+## mainnet
 mkdir -p ~/.switcheo_logs/old ~/.switcheo_migrations/migrate ~/.switcheo_config
 
 # initialise db
@@ -271,6 +275,10 @@ WALLET_PASSWORD=xxx switcheod start-all -a
 You can find the logs from `switcheod` here:
 
 ```bash
+# testnet
+tail -f ~/.switcheod/logs/*
+
+# mainnet
 tail -f ~/.switcheo_logs/*
 ```
 
@@ -334,7 +342,24 @@ stdout_logfile=/var/log/supervisor/switcheod.out.log
 
 Switcheo TradeHub outputs quite alot of logs, and it may be neccessary to keep them. Use logrotate to manage the disk usage of logs.
 
+
 ```bash
+# testnet
+sudo bash -c 'cat <<EOT >> /etc/logrotate.d/switcheo_logs
+$HOME/.switcheod/logs/*.log ${HOME}/.switcheod/logs/*.err {
+    olddir ${HOME}/.switcheod/logs/old
+    daily
+    missingok
+    rotate 30
+    compress
+    copytruncate
+    notifempty
+}
+EOT
+```
+
+```bash
+# mainnet
 sudo bash -c 'cat <<EOT >> /etc/logrotate.d/switcheo_logs
 $HOME/.switcheo_logs/*.log ${HOME}/.switcheo_logs/*.err {
     olddir ${HOME}/.switcheo_logs/old
