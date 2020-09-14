@@ -18,7 +18,7 @@ The `switcheod` binary contains a full Switcheo TradeHub node as well as several
 - `switcheod ws-api` runs a custom WS API server that streams data that is indexed by the `persistence` service.
 - `switcheod oracle` runs the oracle service - validators need to run this when trading begins, however this can be done on a separate node (such as a sentry node). Additionally, `persistence` and `rest-api` need to be running.
 - `switcheod liquidator` runs the liquidator service - only one validator needs to run this, but any validators that do will earn additional rewards. This can be done on a separate node (such as a sentry node).
-- `switcheod relayer` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be run by exchange operators.
+- `switcheod gasstation` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be run by exchange operators.
 - `switcheod start -a` runs all the above services.
 
 ## Requirements
