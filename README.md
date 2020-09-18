@@ -18,7 +18,7 @@ Here are the minimum system requirements for a validator node:
 
 The 5TB requirement is high due to our 1 second block times and is an estimate based on 1 year of high trading volume. Pruning and compression solutions for old block data to reduce storage requirements is currently our top-most priority. Validators may join the network with 1TB and expand their storage later if required.
 
-Mainnet validators should also read about [sentry nodes](#sentry-nodes-ddos-protection) to help in DDOS protection.
+Mainnet validators are strongly recommended to read about [sentry nodes](#sentry-nodes-ddos-protection) to help in DDOS protection.
 
 **Testnet**: 2GB RAM, 2 CPUs, 200GB Storage
 
@@ -336,7 +336,7 @@ It is also important that only one instance of each validator node is active at 
 
 Validators are responsible for ensuring that the network can sustain denial of service attacks.
 
-One recommended way to mitigate these risks is for validators to carefully structure their network topology in a so-called [sentry node architecture](https://forum.cosmos.network/t/sentry-node-architecture-overview/454).
+One recommended way to mitigate these risks is for validators to carefully structure their network topology in a so-called [sentry node architecture](https://forum.cosmos.network/t/sentry-node-architecture-overview/454). Validators without sentry nodes are **very susceptible to spam** which would cause them to go down.
 
 Validator nodes should only connect to full-nodes they trust because they operate them themselves or are run by other validators they know socially. A validator node will typically run in a data center. Most data centers provide direct links the networks of major cloud providers. The validator can use those links to connect to sentry nodes in the cloud. This shifts the burden of denial-of-service from the validator's node directly to its sentry nodes, and may require new sentry nodes be spun up or activated to mitigate attacks on existing ones.
 
@@ -364,7 +364,7 @@ Sentry Nodes should edit their config.toml:
 private_peer_ids = "node_ids_of_private_peers"
 ```
 
-Validator nodes should only open the P2P port (26656) and rely on your sentry nodes for serving other requests. See the FAQ below for more information.
+Validator nodes should only open the P2P port (26656) to their sentry nodes ip and rely on your sentry nodes for serving other requests. See the FAQ below for more information.
 
 ---
 
@@ -441,7 +441,7 @@ switcheoctl restart -n # for sentry node
 
 The following ports should be open to allow for p2p traffic between nodes:
 
-- 26656 - P2P
+- 26656 - P2P (if you have sentry nodes, only open this port to their ip)
 
 #### Sentry Node
 
