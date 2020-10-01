@@ -377,11 +377,13 @@ If you encounter "too many open files" in your logs, you need to increase your o
 ulimit -n
 ```
 
+Replace [user] with current user. You can check that by running `echo $USER`.
+
 ```bash
 sudo vi /etc/security/limits.conf
 # add the following
-*                soft    nofile          64000
-*                hard    nofile          64000
+[user]           soft    nofile          64000
+[user]           hard    nofile          64000
 ```
 
 ```bash
