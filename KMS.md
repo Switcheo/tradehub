@@ -155,25 +155,34 @@ Follow the [production YubiHSM guide](https://github.com/iqlusioninc/tmkms/blob/
     Aug 06 10:26:44.403  INFO tmkms::session: [switcheochain@tcp://localhost:26658] signed PreCommit:36D89B049E at h/r/s 10209/0/2 (0 ms)
     ```
 
-8. You may want to add `tmkms` to supervisor:
+8. You may want to add `tmkms` to systemctl:
 
     ```bash
-    sudo vi /etc/supervisor/conf.d/tmkms.conf
+    sudo vi /etc/systemd/system/tmkms.service
     ```
 
+    Replace $USER and $HOME
     ```conf
-    [program:tmkms]
-    user=ubuntu
-    command=/home/ubuntu/.cargo/bin/tmkms start -c /path-to-kms-dir/tmkms.toml
-    autostart=true
-    autorestart=true
-    startretries=100
-    startsecs=10
-    stopasgroup=true
-    killasgroup=true
-    stopsignal=INT
-    stderr_logfile=/var/log/supervisor/tmkms.err.log
-    stdout_logfile=/var/log/supervisor/tmkms.out.log
+    [Unit]
+    Description=tmkms service
+    After=network.target
+    StartLimitIntervalSec=0
+
+    [Service]
+    Type=simple
+    Restart=always
+    RestartSec=10
+    User=$USER
+    ExecStart=$HOME/.cargo/bin/tmkms start -c /path-to-kms-dir/tmkms.toml
+    LimitNOFILE=1024
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+
+    Start the service
+    ```bash
+    sudo systemctl start tmkms
     ```
 
 9. You may now remove the validator key file from your validator machine:
