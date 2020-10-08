@@ -38,7 +38,7 @@ curl -L https://github.com/Switcheo/tradehub/releases/download/v1.7.3/install-te
 ### Mainnet Release
 
 ```bash
-curl -L https://github.com/Switcheo/tradehub/releases/download/v1.6.0/install-mainnet.tar.gz | tar -xz
+curl -L https://github.com/Switcheo/tradehub/releases/download/v1.8.0/install-mainnet.tar.gz | tar -xz
 ```
 
 ## Install `switcheoctl`
@@ -180,19 +180,9 @@ target=/data
 
 mv ~/.switcheo* $target && cd $target
 
-# testnet
 declare -a dirs=(
     "switcheocli"
     "switcheod"
-)
-
-# mainnet
-declare -a dirs=(
-    "switcheocli"
-    "switcheo_config"
-    "switcheod"
-    "switcheo_logs"
-    "switcheo_migrations"
 )
 
 for dir in ${dirs[@]}; do mv .$dir $dir && ln -s $target/$dir ~/.$dir; done
@@ -307,12 +297,7 @@ sudo cp /etc/switcheoctl/bin/switcheocli /usr/local/bin
 switcheoctl start
 
 # check that chain is progressing, there should be no errors
-
-# testnet
 tail -f ~/.switcheod/logs/*
-
-# mainnet
-tail -f ~/.switcheo_logs/*
 
 # check version is patched correctly
 curl -s localhost:1318/node_info | jq -r '.application_version.version'
@@ -371,43 +356,14 @@ Validator nodes should only open the P2P port (26656) to their sentry nodes ip a
 ## Increase maximum number of open file descriptors
 
 If you encounter "too many open files" in your logs, you need to increase your open file descriptors.
-
 ```bash
 # show current limit
-ulimit -n
+cat /etc/systemd/system/switcheod.service | grep LimitNOFILE
 ```
 
-Replace [user] with current user. You can check that by running `echo $USER`.
-
+Increase LimitNOFILE
 ```bash
-sudo vi /etc/security/limits.conf
-# add the following
-[user]           soft    nofile          64000
-[user]           hard    nofile          64000
-```
-
-```bash
-sudo vi /etc/pam.d/common-session
-# add the following
-session required        pam_limits.so
-```
-
-Restart session. `exit`
-
-```bash
-# check updated limit
-ulimit -n
-```
-
-You also need to update your environment variables which updates your supervisor config
-```bash
-vi ~/.env_switcheo
-export MINFDS=64000 # ensure that number is less or equal than what you set above
-```
-
-```bash
-# restart shell
-exec $SHELL
+sudo vi /etc/systemd/system/switcheod.service
 ```
 
 Finally, restart your node
@@ -493,20 +449,12 @@ The chain IDs are already configured appropriately if you are using the correct 
 
 ## Debugging
 
-Logs for all services / processes under Switcheo TradeHub are written to the .switcheo_logs folder.
+Logs for all services / processes under Switcheo TradeHub are written to the .switcheod/logs folder.
 
 You can tail all logs for debugging with:
 
-# testnet
 `tail -f ~/.switcheod/logs/*`
-
-# mainnet
-`tail -f ~/.switcheo_logs/*`
 
 To tail a specific service's log:
 
-# testnet
-`tail -f ~/.switcheod/logs/start*`
-
-# mainnet
-`tail -f ~/.switcheo_logs/start*`
+`tail -f ~/.switcheod/logs/node_start.log`
