@@ -21,6 +21,8 @@ The `switcheod` binary contains a full Switcheo TradeHub node as well as several
 - `switcheod gasstation` runs a service that helps users to create Ethereum wallets and deposit transactions - this only needs to be run by exchange operators.
 - `switcheod start -a` runs all the above services.
 
+The `cosmovisor` binary coordinates node upgrades, which automatically transition to the upgraded binary upon reaching the upgrade blockheight. You will run `cosmovisor` instead of `switcheod` and arguements passed to `cosmovisor` command will be passed to `switcheod`.
+
 ## Requirements
 
 Nodes that serve public APIs (running `persistence` and `reset-api`, or `ws-api`) need the following databases installed.
@@ -111,7 +113,7 @@ server {
         proxy_pass  http://127.0.0.1:1317;
     }
 
-    location ~ ^/(staking|supply|slashing|distribution|auth|txs|subaccount|blocks|bank)/ {
+    location ~ ^/(staking|supply|slashing|distribution|auth|txs|subaccount|blocks|bank|gov)/ {
         add_header 'Access-Control-Allow-Origin' '*';
         proxy_pass  http://127.0.0.1:1317;
     }
@@ -164,7 +166,7 @@ Release binaries can be found [here](./README.md#download-a-switcheoctl-release)
 Copy switcheod and switcheocli to /usr/local/bin
 
 ```bash
-cd install-mainnet && sudo cp bin/switcheod bin/switcheocli /usr/local/bin && cd - && rm -rf install-mainnet
+cd install-mainnet && sudo cp bin/{switcheod,switcheocli} /usr/local/bin && cd -
 ```
 
 ### Configure environment
@@ -189,13 +191,16 @@ export LOG_TO_FILE=1
 export LOG_LEVEL=info
 export SWTH_UPGRADER=cosmos1flqfs2dzzkrf49aj5pg0nj340jdqzgje02smww
 export SEND_ETH_TXNS=1
-export MINFDS=1024
+export WALLET_PASSWORD=
+export DAEMON_NAME=switcheod
+export DAEMON_HOME=${HOME}/.switcheod
+export PATH=${HOME}/.switcheod/cosmovisor/current/bin:${HOME}/.switcheod/cosmovisor/genesis/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 ```
 
-If using `.bashrc`, remember to reload it with:
+Reload shell:
 
 ```bash
-source ~/.bashrc
+exec $SHELL
 ```
 
 ### Configure node
@@ -246,28 +251,32 @@ apt-get install jq -y # next cmd uses jq
 curl -s "${node_url}/genesis" | jq '.result.genesis' > ~/.switcheod/config/genesis.json
 
 # initialise supporting directories
-
-## testnet
 mkdir -p ~/.switcheod/logs/old ~/.switcheod/migrations/migrate ~/.switcheod/config/oracles
-## mainnet
-mkdir -p ~/.switcheo_logs/old ~/.switcheo_migrations/migrate ~/.switcheo_config
 
 # initialise db
 createdb switcheochain
 ```
 
-### Running node
+### Configure cosmovisor
 
-If running the `oracle` and `liquidator` services, ensure `WALLET_PASSWORD` is set.
+Copy switcheod and switcheocli to `~/.switcheod/cosmovisor`, from release downloaded previously.
+
+Remove switcheod/switcheocli from `/usr/local/bin` as we would be using the binaries from `~/.switcheod/cosmovisor`.
+
+```bash
+cd install-mainnet && sudo cp -r cosmovisor ~/.switcheod/ && sudo rm /usr/local/bin/{switcheod,switcheocli} && cd - && rm -rf install-mainnet
+```
+
+### Running node through `cosmovisor`
+
+If running the `oracle` and `liquidator` services, ensure `WALLET_PASSWORD` is set in ~/.env_switcheo.
 The `start-all -a` command will attempt to run these subservices and load `oraclewallet` and `liquidator` accounts from the file-based keyring if it is present.
 
 ```bash
 # run node only (for validator that is running oracle / liquidator service separately)
-switcheod start
-# run node with public apis
-switcheod start-all -a
-# run node with public apis and oracle and liquidator services
-WALLET_PASSWORD=xxx switcheod start-all -a
+bash -c "source ~/.env_switcheo && cosmovisor start"
+# run node with public apis /and oracle and liquidator services
+bash -c "source ~/.env_switcheo && cosmovisor start -a"
 ```
 
 ### Logging and debugging
@@ -275,11 +284,7 @@ WALLET_PASSWORD=xxx switcheod start-all -a
 You can find the logs from `switcheod` here:
 
 ```bash
-# testnet
 tail -f ~/.switcheod/logs/*
-
-# mainnet
-tail -f ~/.switcheo_logs/*
 ```
 
 ### Stake as a validator
@@ -316,24 +321,21 @@ You should strongly consider setting up these services to maintain the well-bein
 
 ### Supervisor
 
-You can use supervisord or systemd to ensure your node remains up. Here is an example supervisor configuration.
+You can use systemctl to ensure your node remains up. Here is an example systemd configuration.
 
 ```config
-[supervisord]
-environment=WALLET_PASSWORD="the-keyring-password" # only if running all services
-minfds=1024
-[program:switcheod]
-user=${CURRENT_USER}
-command=switcheod start-all -a
-autostart=true
-autorestart=true
-startretries=100
-startsecs=10
-stopasgroup=true
-killasgroup=true
-stopsignal=INT
-stderr_logfile=/var/log/supervisor/switcheod.err.log
-stdout_logfile=/var/log/supervisor/switcheod.out.log
+[Unit]
+Description=switcheod service
+After=network.target
+StartLimitIntervalSec=0
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=root
+ExecStart=/bin/bash -c "source ~/.env_switcheo; killall -w -s 9 switcheod switcheocli; cosmovisor start-all -a"
+LimitNOFILE=64000
+[Install]
 ```
 
 > Important: When running the `oracle` and `liquidator` service, the `oraclewallet` and `liquidator` wallet must be in the file-based keyring of the same machine, and the `WALLET_PASSWORD` environment must be set. Otherwise, `WALLET_PASSWORD` should not be set.
@@ -344,25 +346,9 @@ Switcheo TradeHub outputs quite alot of logs, and it may be neccessary to keep t
 
 
 ```bash
-# testnet
 sudo bash -c 'cat <<EOT >> /etc/logrotate.d/switcheo_logs
 $HOME/.switcheod/logs/*.log ${HOME}/.switcheod/logs/*.err {
     olddir ${HOME}/.switcheod/logs/old
-    daily
-    missingok
-    rotate 30
-    compress
-    copytruncate
-    notifempty
-}
-EOT
-```
-
-```bash
-# mainnet
-sudo bash -c 'cat <<EOT >> /etc/logrotate.d/switcheo_logs
-$HOME/.switcheo_logs/*.log ${HOME}/.switcheo_logs/*.err {
-    olddir ${HOME}/.switcheo_logs/old
     daily
     missingok
     rotate 30
