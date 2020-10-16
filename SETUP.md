@@ -338,6 +338,11 @@ LimitNOFILE=64000
 [Install]
 ```
 
+Enable switcheod service to auto start after boot.
+```bash
+sudo systemctl enable switcheod.service
+```
+
 > Important: When running the `oracle` and `liquidator` service, the `oraclewallet` and `liquidator` wallet must be in the file-based keyring of the same machine, and the `WALLET_PASSWORD` environment must be set. Otherwise, `WALLET_PASSWORD` should not be set.
 
 ### Logrotate

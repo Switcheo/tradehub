@@ -416,6 +416,16 @@ The chain IDs are already configured appropriately if you are using the correct 
 
     `switcheocli tx staking delegate <val_address> 100000000000swth --from val --fees 100000000swth -y -b block --keyring-backend file`
 
+### Enable switcheod services to auto start after boot
+
+1. Check status of switcheod.service is-enabled
+
+   `sudo systemctl is-enabled switcheod.service`
+
+2. Enable switcheod.service
+
+    `sudo systemctl enable switcheod.service`
+
 ## Debugging
 
 Logs for all services / processes under Switcheo TradeHub are written to the .switcheod/logs folder.
