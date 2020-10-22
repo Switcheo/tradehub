@@ -274,7 +274,7 @@ You should run `switcheoctl restart` after linking your wallets, this will allow
 
 ## Upgrading your node
 
-When upgrading a minor binary version (e.g. 1.8.0 to 1.8.1), there should be no changes in consensus or chain state. In this case, we can simply patch the node and CLI binaries - `switcheod` and `switcheocli` by hot replacing them. This should only be done when your chain have been fully caught up.
+When upgrading a minor binary version (e.g. 1.8.0 to 1.8.1), there should be no changes in consensus or chain state. In this case, we can simply patch the node and CLI binaries - `switcheod` and `switcheocli` by hot replacing them into v1.8.0 folder, which is where cosmovisor/current is pointing to. This should only be done when your chain have been fully caught up.
 
 If you have a sentry node, upgrade sentry node first then upgrade validator node.
 
@@ -292,9 +292,9 @@ cp -r ~/.switcheod/cosmovisor/upgrades/v1.8.0 ~/.switcheod/cosmovisor/upgrades/v
 
 # stop services
 switcheoctl stop
-# replace switcheod
+# replace switcheod in v1.8.0, cosmovisor/current is pointing to this
 sudo cp /etc/switcheoctl/bin/switcheod ~/.switcheod/cosmovisor/upgrades/v1.8.0/bin
-# replace switcheocli
+# replace switcheocli, cosmovisor/current is pointing to this
 sudo cp /etc/switcheoctl/bin/switcheocli ~/.switcheod/cosmovisor/upgrades/v1.8.0/bin
 
 # start validator or
