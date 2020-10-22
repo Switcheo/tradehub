@@ -272,6 +272,43 @@ To link the `oraclewallet` as a subaccount of your `val` wallet, you can use the
 
 You should run `switcheoctl restart` after linking your wallets, this will allow the oracle service to start correctly.
 
+## Upgrading your node
+
+When upgrading a minor binary version (e.g. 1.8.0 to 1.8.1), there should be no changes in consensus or chain state. In this case, we can simply patch the node and CLI binaries - `switcheod` and `switcheocli` by hot replacing them. This should only be done when your chain have been fully caught up.
+
+If you have a sentry node, upgrade sentry node first then upgrade validator node.
+
+You would need to perform the following steps fast to prevent getting slashed, if you are a validator node.
+
+```bash
+# download switcheoctl, pick the version to upgrade from https://github.com/Switcheo/tradehub/releases
+curl -L https://github.com/Switcheo/tradehub/releases/download/vx.x.x/install-<mainnet|testnet>.tar.gz | tar -xz
+
+# install switcheoctl
+cd install-<mainnet|testnet> && sudo ./install.sh && cd - && rm -rf install-<mainnet|testnet>
+
+# make sure you have backed up v1.8.0 (usually latest /upgrades/vx.x.0)
+cp -r ~/.switcheod/cosmovisor/upgrades/v1.8.0 ~/.switcheod/cosmovisor/upgrades/v1.8.0.bak
+
+# stop services
+switcheoctl stop
+# replace switcheod
+sudo cp /etc/switcheoctl/bin/switcheod ~/.switcheod/cosmovisor/upgrades/v1.8.0/bin
+# replace switcheocli
+sudo cp /etc/switcheoctl/bin/switcheocli ~/.switcheod/cosmovisor/upgrades/v1.8.0/bin
+
+# start validator or
+switcheoctl start
+# start sentry
+switcheoctl start -n
+
+# check that chain is progressing, there should be no errors
+tail -f ~/.switcheod/logs/*
+
+# check version is patched correctly
+curl -s localhost:1318/node_info | jq -r '.application_version.version'
+```
+
 ---
 
 ## Validator Security
