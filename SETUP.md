@@ -27,7 +27,7 @@ The `cosmovisor` binary coordinates node upgrades, which automatically transitio
 
 Nodes that serve public APIs (running `persistence` and `reset-api`, or `ws-api`) need the following databases installed.
 
-Validators need at least one full node with these installed to run the oracle service, **but can
+Validator operators should run at least one full node with these installed for running the oracle service, **but can
 skip installing these for the validator node itself**.
 
 - Redis
