@@ -27,13 +27,15 @@ The `cosmovisor` binary coordinates node upgrades, which automatically transitio
 
 Nodes that serve public APIs (running `persistence` and `reset-api`, or `ws-api`) need the following databases installed.
 
-Validators need at least one full node with these installed to run the oracle service, but can
-skip installing these for the validator node itself.
+Validators need at least one full node with these installed to run the oracle service, **but can
+skip installing these for the validator node itself**.
 
 - Redis
 - Postgresql
 
-## Setup Dependencies
+### Setup Dependencies
+
+Skip these for the validator node that are not running additional services.
 
 Update package information:
 
@@ -231,7 +233,7 @@ sed -i -e 's/addr_book_strict = true/addr_book_strict = false/g' ~/.switcheod/co
 # if this is a validator node behind a sentry node, disable pex:
 sed -i -e "s/pex.*/pex = false/g" ~/.switcheod/config/config.toml
 
-# get peers and genesis file from a trusted node
+# set the initial peers and trusted node to sync genesis file from
 # note that this configuration may differ if you are running in sentry configuration!
 
 ## testnet
@@ -239,8 +241,8 @@ persistent_peers=026b889e51c31c5370c4a6b43d7193d583efa4a2@54.255.42.175:26656
 node_url=54.255.42.175:26657
 
 ## mainnet
-persistent_peers=d363e17a3d4c7649e5c59bcd33176a476433108c@54.255.5.46:26656
-node_url=54.179.34.89:26657
+persistent_peers=d363e17a3d4c7649e5c59bcd33176a476433108c@54.179.34.89:26656,ca1189045e84d2be5db0a1ed326ce7cd56015f11@54.255.5.46:26656,d233cd97f8c81b7705ea16b962a4101063875151@175.41.151.35:26656
+node_url=54.255.5.46:26657
 
 # set persistent_peers
 cmd="s/persistent_peers = \"\"/persistent_peers = \"${persistent_peers}\"/g"
@@ -254,6 +256,7 @@ curl -s "${node_url}/genesis" | jq '.result.genesis' > ~/.switcheod/config/genes
 mkdir -p ~/.switcheod/logs/old ~/.switcheod/migrations/migrate ~/.switcheod/config/oracles
 
 # initialise db
+# NOTE: skip this if not running postgresql!
 createdb switcheochain
 ```
 
@@ -319,7 +322,7 @@ switcheocli tx staking create-validator --amount <amountToStakeInSatoshis>swth -
 
 You should strongly consider setting up these services to maintain the well-being of your node.
 
-### Supervisor
+### Systemctl
 
 You can use systemctl to ensure your node remains up. Here is an example systemd configuration.
 
