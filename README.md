@@ -38,7 +38,7 @@ curl -L https://github.com/Switcheo/tradehub/releases/download/v1.8.6/install-te
 ### Mainnet Release
 
 ```bash
-curl -L https://github.com/Switcheo/tradehub/releases/download/v1.9.0/install-mainnet.tar.gz | tar -xz
+curl -L https://github.com/Switcheo/tradehub/releases/download/v1.10.0/install-mainnet.tar.gz | tar -xz
 ```
 
 ## Install `switcheoctl`
@@ -274,7 +274,7 @@ You should run `switcheoctl restart` after linking your wallets, this will allow
 
 ## Upgrading your node
 
-When upgrading a minor binary version (e.g. 1.9.0 to 1.9.1), there should be no changes in consensus or chain state. In this case, we can simply patch the node and CLI binaries - `switcheod` and `switcheocli` by hot replacing them into v1.9.0 folder, which is where cosmovisor/current is pointing to. This should only be done when your chain have been fully caught up.
+When upgrading a minor binary version (e.g. 1.10.0 to 1.10.1), there should be no changes in consensus or chain state. In this case, we can simply patch the node and CLI binaries - `switcheod` and `switcheocli` by hot replacing them into v1.10.0 folder, which is where cosmovisor/current is pointing to. This should only be done when your chain have been fully caught up.
 
 If you have a sentry node, upgrade sentry node first then upgrade validator node.
 
@@ -288,14 +288,14 @@ curl -L https://github.com/Switcheo/tradehub/releases/download/vx.x.x/install-<m
 cd install-<mainnet|testnet> && sudo ./install.sh && cd - && rm -rf install-<mainnet|testnet>
 
 # make sure you have backed up the version your trying to upgrade (usually latest /upgrades/vx.x.0)
-cp -r ~/.switcheod/cosmovisor/upgrades/v1.9.0 ~/.switcheod/cosmovisor/upgrades/v1.9.0.bak
+cp -r ~/.switcheod/cosmovisor/upgrades/v1.10.0 ~/.switcheod/cosmovisor/upgrades/v1.10.0.bak
 
 # stop services
 switcheoctl stop
 # replace switcheod in vx.x.x, cosmovisor/current is pointing to this
-sudo cp /etc/switcheoctl/bin/switcheod ~/.switcheod/cosmovisor/upgrades/v1.9.0/bin
+sudo cp /etc/switcheoctl/bin/switcheod ~/.switcheod/cosmovisor/upgrades/v1.10.0/bin
 # replace switcheocli, cosmovisor/current is pointing to this
-sudo cp /etc/switcheoctl/bin/switcheocli ~/.switcheod/cosmovisor/upgrades/v1.9.0/bin
+sudo cp /etc/switcheoctl/bin/switcheocli ~/.switcheod/cosmovisor/upgrades/v1.10.0/bin
 
 # start validator or
 switcheoctl start
