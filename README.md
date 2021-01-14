@@ -70,6 +70,7 @@ If you are setting up a sentry node, this should be done before setting up your 
    `persistent_peers`, we have provided the default as Switcheo's sentry node. This should be given as a comma separated list of nodes in `<node_id>@<ip_address>:26656` format.
    4. It is important to manage your persistent peers. More on that [here](#managing-p2p-connections).
 2. Install with: `switcheoctl install-node`
+3. Restart shell: `exec $SHELL`
 
 ### Validator node setup
 
@@ -85,7 +86,8 @@ If you are setting up a sentry node, this should be done before setting up your 
    4. Set `pex` to `false` if you have sentry nodes. If you do not have sentry nodes, it is important to manage your persistent peers. More on that [here](#managing-p2p-connections).
    5. You may update other details for your validator later on.
 2. Install with: `switcheoctl install-validator`
-3. Create the required wallets for running a validator node. **Store the generated mnemonics in a safe, offline location!**
+3. Restart shell: `exec $SHELL`
+4. Create the required wallets for running a validator node. **Store the generated mnemonics in a safe, offline location!**
 
      ```bash
      switcheocli keys add val --keyring-backend file
@@ -105,7 +107,7 @@ If you are setting up a sentry node, this should be done before setting up your 
 
     The oracle and liquidator services can be ran separately with the `switcheod oracle` and `switcheod liquidator` commands. However, these will do nothing until trading begins.
 
-4. Send SWTH to all wallets for self-staking and paying network fees. You can deposit NEP-5 SWTH into Switcheo TradeHub and then transfer SWTH from another wallet through the following command:
+5. Send SWTH to all wallets for self-staking and paying network fees. You can deposit NEP-5 SWTH into Switcheo TradeHub and then transfer SWTH from another wallet through the following command:
 
     `switcheocli tx bank send --from <from_name> --keyring-backend file -y --fees 100000000swth -b block val <to_address> <amountInSatoshis>swth`
 
