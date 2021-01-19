@@ -23,7 +23,7 @@ You may choose to run the oracle service in either the validator or sentry node.
 
     ```bash
     # send 10 swth from val to oraclewallet
-    switcheocli tx bank send --from val --keyring-backend file -y --fees 100000000swth -b block val <oraclewallet-address> 1000000000swthswth
+    switcheocli tx bank send --from val --keyring-backend file -y --fees 100000000swth -b block val <oraclewallet-address> 1000000000swth
     ```
 
     ```bash
