@@ -10,7 +10,6 @@ You may choose to run the oracle service in either the validator or sentry node.
 
 If the oracle service is run in the sentry node, also create a dummy `val` wallet. This will not be needed in a future patch.
 
-
 1. Check that val and oraclewallet exist
 
     ```bash
