@@ -14,13 +14,13 @@ Therefore, nodes should be run as a dedicated instance to prevent configuration 
 
 Here are the minimum system requirements for a validator node:
 
-**Mainnet**: 8GB RAM, 4 CPUs, 5TB Storage
+**Mainnet**: 16GB RAM, 4 CPUs, 5TB Storage
 
 The 5TB requirement is high due to our 1 second block times and is an estimate based on 1 year of high trading volume. Pruning and compression solutions for old block data to reduce storage requirements is currently our top-most priority. Validators may join the network with 1TB and expand their storage later if required.
 
 Mainnet validators are strongly recommended to read about [sentry nodes](#sentry-nodes-ddos-protection) to help in DDOS protection.
 
-**Testnet**: 2GB RAM, 2 CPUs, 200GB Storage
+**Testnet**: 8GB RAM, 2 CPUs, 200GB Storage
 
 ## Download a `switcheoctl` release
 
