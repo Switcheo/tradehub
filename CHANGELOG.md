@@ -35,20 +35,40 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [v1.11.1](https://github.com/Switcheo/tradehub/releases/tag/v1.11.1) - 2021-01-18
 ### Improvements
-* Add subaccount query, see oracle readme.
-* Build binary with cleveldb adapter. Existing nodes that have started with goleveldb (default) will not be able to use cleveldb, but must still install leveldb package in their machine as the binary will require those headers. Only fresh installation will use cleveldb. You can check your `db_backend` in `~/.switcheod/config/config.toml`.
+- Add subaccount query, see oracle readme.
+- Build binary with cleveldb adapter. Existing nodes that have started with goleveldb (default) will not be able to use cleveldb, but must still install leveldb package in their machine as the binary will require those headers. Only fresh installation will use cleveldb. You can check your `db_backend` in `~/.switcheod/config/config.toml`.
 
 ### Bug Fixes
-* Fix API to last price in `/get_market_stats` endpoint, and ws `get_market_stats`, `market_stats` channels, where decimals places was shifted wrongly.
-* Fix recent trades in ws `get_recent_trades` and `recent_trades` channels.
+- Fix API to last price in `/get_market_stats` endpoint, and ws `get_market_stats`, `market_stats` channels, where decimals places was shifted wrongly.
+- Fix recent trades in ws `get_recent_trades` and `recent_trades` channels.
 
 ## [v1.12.0](https://github.com/Switcheo/tradehub/releases/tag/v1.12.0) - 2021-01-29
 
 ### Improvements
-* Purge orders from state that have reached end state - "filled", "cancelled". v1.12.0 migration will remove all orders from orders store that have reached end state.
-* - Save oracle votes to db for better analytics.
-* - AMM will now quote up to half the reserves.
+- Purge orders from state that have reached end state - "filled", "cancelled". v1.12.0 migration will remove all orders from orders store that have reached end state.
+-  Save oracle votes to db for better analytics.
+- AMM will now quote up to half the reserves.
 ### Bug Fixes
-* Fix AMM not requoting orderbooks when swap fee changes
-* Fix cancelled stop orders still existing in account's open orders. v1.12.0 migration will remove all orders that have reached end state from accounts' open orders.
-* Fix allocated margin being added to untriggered stop-limit orders during change leverage.
+- Fix AMM not requoting orderbooks when swap fee changes
+- Fix cancelled stop orders still existing in account's open orders. v1.12.0 migration will remove all orders that have reached end state from accounts' open orders.
+- Fix allocated margin being added to untriggered stop-limit orders during change leverage.
+
+## [v1.14.0](https://github.com/Switcheo/tradehub/releases/tag/v1.14.0) - 2021-02-16
+
+### Improvements
+- Limit the pruning of oracles votes to 1000 per block per oracle, in order to avoid a situation that can potentially cause slow blocks to occur.
+### Bug Fixes
+- Fix rounding direction in AMM quoting implementation.
+
+
+## [v1.15.0](https://github.com/Switcheo/tradehub/releases/tag/v1.15.0) - 2021-03-15
+
+### Improvements
+- Add native withdrawal of SWTH to bsc
+- Add bsc fee payer and external event tracking services
+- Add state queries for locked user coins
+- Use [gasnow.org](http://gasnow.org/) for estimating gas prices in fee service
+### Bug Fixes
+- Fix `get_market_stats` REST endpoint giving wrong result
+- Fix possible panic in websocket service for some invalid parameters
+- Fix panic in `SetCommitmentCurve` message.
