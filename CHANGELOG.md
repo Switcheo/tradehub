@@ -72,3 +72,16 @@ Ref: https://keepachangelog.com/en/1.0.0/
 - Fix `get_market_stats` REST endpoint giving wrong result
 - Fix possible panic in websocket service for some invalid parameters
 - Fix panic in `SetCommitmentCurve` message.
+
+## [v1.16.0](https://github.com/Switcheo/tradehub/releases/tag/v1.16.0) - 2021-03-23
+
+### Bug Fixes
+
+- Fix edge case scenarios causing stucked order margin
+- Fix possible panic in linking pool when it is already linked to another market
+
+## [v1.17.0](https://github.com/Switcheo/tradehub/releases/tag/v1.17.0) - 2021-05-24
+
+### Bug Fixes
+
+- Fix export/init genesis state
