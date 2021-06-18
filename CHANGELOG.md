@@ -85,3 +85,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - Fix export/init genesis state
+
+## [v1.18.0](https://github.com/Switcheo/tradehub/releases/tag/v1.18.0) - 2021-06-15
+
+### Improvements
+- Add block_height in ws response
+
+### Bug Fixes
+
+- Fix slow websocket blocktimes due to slow db queries
