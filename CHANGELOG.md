@@ -94,3 +94,12 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 
 - Fix slow websocket blocktimes due to slow db queries
+
+## [v1.19.0](https://github.com/Switcheo/tradehub/releases/tag/v1.19.0) - 2021-08-12
+### Improvements
+- Allow adjusting of lotsize and ticksize through update market
+- Optimise msg_types db queries
+
+### Bug Fixes
+- Fix insufficient order margin for some orders in the order book
+- Fix adl module ranking short positions incorrectly
